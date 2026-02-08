@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "project": "gpt_academic",
+  "lastUpdated": "2025-02-08",
+
+  "metadata": {
+    "name": "gpt_academic",
+    "description": "GPT 学术优化 - 为学术工作设计的 AI 助手",
+    "author": "binary-husky",
+    "repository": "https://github.com/binary-husky/gpt_academic",
+    "license": "自定义"
+  },
+
+  "entryPoints": {
+    "main": "main.py",
+    "config": "config.py",
+    "core": "core_functional.py",
+    "advanced": "crazy_functional.py"
+  },
+
+  "directories": {
+    "plugins": "crazy_functions/",
+    "llm": "request_llms/",
+    "utils": "shared_utils/",
+    "themes": "themes/",
+    "docs": "docs/",
+    "tests": "tests/"
+  },
+
+  "supportedModels": {
+    "openai": ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"],
+    "domestic": ["qwen", "glm-4", "ernie", "spark"],
+    "opensource": ["llama2", "chatglm2", "deepseekcoder"]
+  },
+
+  "plugins": {
+    "arxiv-translate": "Arxiv 论文精细翻译",
+    "audio-input": "实时语音对话输入",
+    "void-terminal": "虚空终端插件（自然语言调度）",
+    "code-analysis": "程序剖析 Python/C/C++/Java/...",
+    "batch-comments": "批量注释生成",
+    "pdf-translate": "PDF 论文全文翻译",
+    "latex-proofread": "Latex 论文一键校对",
+    "google-scholar": "谷歌学术统合小助手",
+    "markdown-translate": "Markdown 中英互译"
+  },
+
+  "features": {
+    "mermaid": "支持 Mermaid 图像渲染",
+    "multi-model": "多 LLM 模型支持",
+    "hot-reload": "插件热更新",
+    "custom-shortcuts": "自定义快捷键",
+    "dark-theme": "暗色主题支持",
+    "multi-language": "多语言界面（中英日韩俄法）"
+  },
+
+  "config": {
+    "file": "config.py",
+    "apiKey": "API_KEY (支持多个，逗号分隔)",
+    "layout": "LAYOUT (左右/上下布局)",
+    "threads": "DEFAULT_WORKING_NUM"
+  },
+
+  "commands": {
+    "install": "pip install -r requirements.txt",
+    "run": "python main.py",
+    "docker": "docker-compose up"
+  },
+
+  "dependencies": {
+    "core": [
+      "gradio",
+      "transformers",
+      "langchain",
+      "openai",
+      "tiktoken"
+    ]
+  },
+
+  "themes": [
+    "default",
+    "dark"
+  ],
+
+  "documentation": {
+    "readme": "README.md",
+    "wiki": "https://github.com/binary-husky/gpt_academic/wiki",
+    "selfAnalysis": "self_analysis.md"
+  },
+
+  "patterns": {
+    "plugin": "插件放在 crazy_functions/ 目录",
+    "config": "config.py 中配置 API 密钥和选项",
+    "ui": "基于 Gradio 的 Web 界面"
+  }
+}
