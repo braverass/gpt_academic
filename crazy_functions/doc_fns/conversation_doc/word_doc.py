@@ -174,4 +174,3 @@ class WordFormatter:
 
 
         return self.doc
-

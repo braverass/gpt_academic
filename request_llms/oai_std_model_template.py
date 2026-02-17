@@ -42,7 +42,7 @@ def decode_chunk(chunk):
         chunk = chunk[6:]
     else:
         chunk = chunk
-    
+
     try:
         chunk = json.loads(chunk)
     except:
@@ -209,12 +209,12 @@ def get_predict_function(
                     raise TimeoutError
                 if MAX_RETRY != 0:
                     logger.error(f"请求超时，正在重试 ({retry}/{MAX_RETRY}) ……")
-        
+
         result = ""
         finish_reason = ""
         if reasoning:
             reasoning_buffer = ""
-        
+
         stream_response = response.iter_lines()
         while True:
             try:
@@ -322,7 +322,7 @@ def get_predict_function(
             system_prompt=system_prompt,
             temperature=llm_kwargs["temperature"],
         )
-        
+
         reasoning = model_info[llm_kwargs['llm_model']].get('enable_reasoning', False)
 
         history.append(inputs)

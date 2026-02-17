@@ -302,5 +302,3 @@ def generate_payload(inputs, llm_kwargs, history, system_prompt, image_paths):
     }
 
     return headers, payload, api_key
-
-

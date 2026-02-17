@@ -123,4 +123,3 @@ if __name__ == '__main__':
     logger.info(len(file_content))
     TOKEN_LIMIT_PER_FRAGMENT = 2500
     res = breakdown_text_to_satisfy_token_limit(file_content, TOKEN_LIMIT_PER_FRAGMENT)
-

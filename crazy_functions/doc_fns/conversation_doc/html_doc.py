@@ -2,7 +2,7 @@
 
 class HtmlFormatter:
     """聊天记录HTML格式生成器"""
-    
+
     def __init__(self, chatbot, history):
         self.chatbot = chatbot
         self.history = history
@@ -42,21 +42,21 @@ class HtmlFormatter:
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slideIn {
             from { transform: translateX(-20px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        
+
         .container {
             animation: fadeIn 0.6s ease-out;
         }
-        
+
         .QaBox {
             animation: slideIn 0.5s ease-out;
             transition: all 0.3s ease;
         }
-        
+
         .QaBox:hover {
             transform: translateX(5px);
         }
@@ -128,7 +128,7 @@ class HtmlFormatter:
                 --text-color: #e2e8f0;
                 --border-color: #1e293b;
             }
-            
+
             .container, .QaBox {
                 background: #1e293b;
             }
@@ -153,7 +153,7 @@ class HtmlFormatter:
         """格式化历史记录内容"""
         if not self.history:
             return ""
-            
+
         history_content = []
         for entry in self.history:
             history_content.append(f'''
@@ -165,7 +165,7 @@ class HtmlFormatter:
 
     def create_document(self) -> str:
         """生成完整的HTML文档
-        
+
         Returns:
             str: 完整的HTML文档字符串
         """

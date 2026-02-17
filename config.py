@@ -369,6 +369,13 @@ AUTO_CONTEXT_MAX_ROUND = 64
 AUTO_CONTEXT_MAX_CLIP_RATIO = [0.80, 0.60, 0.45, 0.25, 0.20, 0.18, 0.16, 0.14, 0.12, 0.10, 0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01]
 
 
+
+# DO NOT USE, UNDER DEVELOPMENT
+REROUTE_ALL_TO_ONE_API = False
+ONE_API_URL = ""
+ONE_API_KEY = "$API_KEY"
+
+
 """
 --------------- 配置关联关系说明 ---------------
 

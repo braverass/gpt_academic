@@ -46,4 +46,3 @@ class NetworkGPT_Wrap(GptAcademicPluginTemplate):
         elif plugin_kwargs.get("categories", None) == "学术论文": plugin_kwargs["categories"] = "science"
         else: plugin_kwargs["categories"] = "general"
         yield from 连接网络回答问题(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, user_request)
-

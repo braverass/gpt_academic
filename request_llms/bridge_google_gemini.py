@@ -55,7 +55,7 @@ def make_media_input(inputs, image_paths):
 
 def predict(inputs:str, llm_kwargs:dict, plugin_kwargs:dict, chatbot:ChatBotWithCookies,
             history:list=[], system_prompt:str='', stream:bool=True, additional_fn:str=None):
-    
+
     from .bridge_all import model_info
 
     # 检查API_KEY

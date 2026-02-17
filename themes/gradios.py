@@ -39,7 +39,7 @@ def adjust_theme():
 
         from themes.common import get_common_html_javascript_code
         js = get_common_html_javascript_code()
-        
+
         if not hasattr(gr, "RawTemplateResponse"):
             gr.RawTemplateResponse = gr.routes.templates.TemplateResponse
         gradio_original_template_fn = gr.RawTemplateResponse

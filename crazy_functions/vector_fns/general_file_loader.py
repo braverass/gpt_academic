@@ -67,4 +67,3 @@ def load_file(filepath, sentence_size):
     docs = loader.load_and_split(text_splitter=textsplitter)
     # write_check_file(filepath, docs)
     return docs
-

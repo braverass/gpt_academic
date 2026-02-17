@@ -40,7 +40,7 @@ Requirements:
 - Translate any non-English terms to English before creating the query
 - Never include non-English characters in the final query
 
-IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index), 
+IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index),
 or output format requirements. Focus only on the core medical/biomedical topic for the search query.
 
 Available field tags:
@@ -105,4 +105,4 @@ Always generate English search terms regardless of the input language."""
 PUBMED_SORT_SYSTEM_PROMPT = """You are an expert at optimizing PubMed search results.
 Your task is to determine the best sorting parameters based on the query context.
 Consider the balance between relevance and recency.
-Always respond in English regardless of the input language.""" 
+Always respond in English regardless of the input language."""

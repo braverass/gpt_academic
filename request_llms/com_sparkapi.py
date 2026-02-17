@@ -223,4 +223,3 @@ def gen_params(appid, inputs, llm_kwargs, history, system_prompt, file_manifest)
         }
     }
     return data
-

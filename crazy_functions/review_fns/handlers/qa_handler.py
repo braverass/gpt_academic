@@ -144,4 +144,3 @@ class 学术问答功能(BaseHandler):
             chatbot.append(["Here is the answer:", "Failed to generate answer."])
 
         return chatbot
-

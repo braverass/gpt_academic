@@ -24,7 +24,7 @@ class Query(BaseModel):
 class VideoResource(BaseModel):
     thought: str = Field(description="analysis of the search results based on the user's query")
     title: str = Field(description="title of the video")
-    author: str = Field(description="author/uploader of the video") 
+    author: str = Field(description="author/uploader of the video")
     bvid: str = Field(description="unique ID of the video")
     another_failsafe_bvid: str = Field(description="provide another bvid, the other one is not working")
 
@@ -47,7 +47,7 @@ def download_video(bvid, user_name, chatbot, history):
     tic_time = 8
     for i in range(tic_time):
         yield from update_ui_latest_msg(
-            lastmsg=f"即将下载音频。等待{tic_time-i}秒后自动继续, 点击“停止”键取消此操作。", 
+            lastmsg=f"即将下载音频。等待{tic_time-i}秒后自动继续, 点击“停止”键取消此操作。",
             chatbot=chatbot, history=[], delay=1)
 
     # download audio
@@ -68,7 +68,7 @@ def download_video(bvid, user_name, chatbot, history):
     tic_time = 16
     for i in range(tic_time):
         yield from update_ui_latest_msg(
-            lastmsg=f"即将下载视频。等待{tic_time-i}秒后自动继续, 点击“停止”键取消此操作。", 
+            lastmsg=f"即将下载视频。等待{tic_time-i}秒后自动继续, 点击“停止”键取消此操作。",
             chatbot=chatbot, history=[], delay=1)
 
     # download video
@@ -94,7 +94,7 @@ class Strategy(BaseModel):
 @CatchException
 def 多媒体任务(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, user_request):
     user_wish: str = txt
-    # query demos: 
+    # query demos:
     #   - "我想找一首歌，里面有句歌词是“turn your face towards the sun”"
     #   - "一首歌，第一句是红豆生南国"
     #   - "一首音乐，中国航天任务专用的那首"
@@ -178,9 +178,9 @@ def 多媒体任务(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_pro
 
     # Display
     chatbot.append(
-        (None, 
+        (None,
             f"分析：{video_resource.thought}" "<br/>"
-            f"选择: `{video_resource.title}`。" "<br/>" 
+            f"选择: `{video_resource.title}`。" "<br/>"
             f"作者：{video_resource.author}"
         )
     )
@@ -198,7 +198,7 @@ def 多媒体任务(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_pro
 
 
 
-        
+
 @CatchException
 def debug(bvid, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, user_request):
     yield from download_video(bvid, chatbot.get_user(), chatbot, history)

@@ -65,7 +65,7 @@ class MilvusSaveLoad():
 
     def create_new_vs(self, checkpoint_dir, overwrite=False):
         vector_store = MilvusVectorStore(
-            uri=os.path.join(checkpoint_dir, "milvus_demo.db"), 
+            uri=os.path.join(checkpoint_dir, "milvus_demo.db"),
             dim=self.embed_model.embedding_dimension(),
             overwrite=overwrite
         )

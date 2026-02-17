@@ -46,7 +46,7 @@ class ExtractorConfig:
 
 class PaperMetadataExtractor:
     """论文元数据提取器
-    
+
     使用unstructured库从多种文档格式中提取论文的标题、作者、摘要等元数据信息。
     """
 
@@ -64,7 +64,7 @@ class PaperMetadataExtractor:
 
     def __init__(self, config: Optional[ExtractorConfig] = None):
         """初始化提取器
-        
+
         Args:
             config: 提取器配置对象，如果为None则使用默认配置
         """
@@ -86,14 +86,14 @@ class PaperMetadataExtractor:
 
     def _validate_file(self, file_path: Union[str, Path], max_size_mb: int = 100) -> Path:
         """验证文件
-        
+
         Args:
             file_path: 文件路径
             max_size_mb: 允许的最大文件大小(MB)
-            
+
         Returns:
             Path: 验证后的Path对象
-            
+
         Raises:
             ValueError: 文件不存在、格式不支持或大小超限
             PermissionError: 没有读取权限
@@ -125,10 +125,10 @@ class PaperMetadataExtractor:
 
     def _cleanup_text(self, text: str) -> str:
         """清理文本
-        
+
         Args:
             text: 原始文本
-            
+
         Returns:
             str: 清理后的文本
         """
@@ -150,14 +150,14 @@ class PaperMetadataExtractor:
 
     def extract_metadata(self, file_path: Union[str, Path], strategy: str = "fast") -> PaperMetadata:
         """提取论文元数据
-        
+
         Args:
             file_path: 文件路径
             strategy: 提取策略 ("fast" 或 "accurate")
-            
+
         Returns:
             PaperMetadata: 提取的论文元数据
-            
+
         Raises:
             Exception: 提取过程中的错误
         """
@@ -175,16 +175,16 @@ class PaperMetadataExtractor:
 
             # 提取元数据
             metadata = PaperMetadata()
-            
+
             # 提取标题和作者
             self._extract_title_and_authors(elements, metadata)
-            
+
             # 提取摘要和关键词
             self._extract_abstract_and_keywords(elements, metadata)
-            
+
             # 提取其他元数据
             self._extract_additional_metadata(elements, metadata)
-            
+
             return metadata
 
         except Exception as e:
@@ -197,7 +197,7 @@ class PaperMetadataExtractor:
         title_candidates = []
         all_text = []
         raw_text = []
-        
+
         # 首先收集文档前30个元素的文本，用于辅助判断
         for i, element in enumerate(elements[:30]):
             if isinstance(element, (Text, Title, NarrativeText)):
@@ -205,18 +205,18 @@ class PaperMetadataExtractor:
                 if text:
                     all_text.append(text)
                     raw_text.append(text)
-        
+
         # 打印出原始文本，用于调试
         print("原始文本前10行:")
         for i, text in enumerate(raw_text[:10]):
             print(f"{i}: {text}")
-        
+
         # 1. 尝试查找连续的标题片段并合并它们
         i = 0
         while i < len(all_text) - 1:
             current = all_text[i]
             next_text = all_text[i + 1]
-            
+
             # 检查是否存在标题分割情况：一行以冒号结尾，下一行像是标题的延续
             if current.endswith(':') and len(current) < 50 and len(next_text) > 5 and next_text[0].isupper():
                 # 合并这两行文本
@@ -228,7 +228,7 @@ class PaperMetadataExtractor:
                 title_candidates.append((combined_title, 15, i))
             else:
                 i += 1
-        
+
         # 2. 首先尝试从标题元素中查找
         for i, element in enumerate(elements[:15]):  # 只检查前15个元素
             if isinstance(element, Title):
@@ -238,24 +238,24 @@ class PaperMetadataExtractor:
                     # 计算标题分数（越高越可能是真正的标题）
                     score = self._evaluate_title_candidate(title_text, i, element)
                     title_candidates.append((title_text, score, i))
-        
+
         # 3. 特别处理常见的论文标题格式
         for i, text in enumerate(all_text[:15]):
             # 特别检查"KIMI K1.5:"类型的前缀标题
             if re.match(r'^[A-Z][A-Z0-9\s\.]+(\s+K\d+(\.\d+)?)?:', text):
                 score = 12  # 给予很高的分数
                 title_candidates.append((text, score, i))
-                
+
                 # 如果下一行也是全大写，很可能是标题的延续
                 if i+1 < len(all_text) and all_text[i+1].isupper() and len(all_text[i+1]) > 10:
                     combined_title = f"{text} {all_text[i+1]}"
                     title_candidates.append((combined_title, 15, i))  # 给合并标题更高分数
-            
+
             # 匹配全大写的标题行
             elif text.isupper() and len(text) > 10 and len(text) < 100:
                 score = 10 - i * 0.5  # 越靠前越可能是标题
                 title_candidates.append((text, score, i))
-        
+
         # 对标题候选按分数排序并选取最佳候选
         if title_candidates:
             title_candidates.sort(key=lambda x: x[1], reverse=True)
@@ -269,35 +269,35 @@ class PaperMetadataExtractor:
                     metadata.title = text
                     break
             title_position = 0
-        
+
         # 提取作者信息 - 改进后的作者提取逻辑
         author_candidates = []
-        
+
         # 1. 特别处理"TECHNICAL REPORT OF"之后的行，通常是作者或团队
         for i, text in enumerate(all_text):
             if "TECHNICAL REPORT" in text.upper() and i+1 < len(all_text):
                 team_text = all_text[i+1].strip()
                 if re.search(r'\b(team|group|lab)\b', team_text, re.IGNORECASE):
                     author_candidates.append((team_text, 15))
-        
+
         # 2. 查找包含Team的文本
         for text in all_text[:20]:
             if "Team" in text and len(text) < 30:
                 # 这很可能是团队名
                 author_candidates.append((text, 12))
-        
+
         # 添加作者到元数据
         if author_candidates:
             # 按分数排序
             author_candidates.sort(key=lambda x: x[1], reverse=True)
-            
+
             # 去重
             seen_authors = set()
             for author, _ in author_candidates:
                 if author.lower() not in seen_authors and not author.isdigit():
                     seen_authors.add(author.lower())
                     metadata.authors.append(author)
-        
+
         # 如果没有找到作者，尝试查找隶属机构信息中的团队名称
         if not metadata.authors:
             for text in all_text[:20]:
@@ -305,7 +305,7 @@ class PaperMetadataExtractor:
                     if len(text) < 50:  # 避免太长的文本
                         metadata.authors.append(text.strip())
                         break
-        
+
         # 提取隶属机构信息
         for i, element in enumerate(elements[:30]):
             element_text = str(element).strip()
@@ -317,10 +317,10 @@ class PaperMetadataExtractor:
     def _evaluate_title_candidate(self, text, position, element):
         """评估标题候选项的可能性分数"""
         score = 0
-        
+
         # 位置因素：越靠前越可能是标题
         score += max(0, 10 - position) * 0.5
-        
+
         # 长度因素：标题通常不会太短也不会太长
         if 10 <= len(text) <= 150:
             score += 3
@@ -328,7 +328,7 @@ class PaperMetadataExtractor:
             score -= 2
         elif len(text) > 150:
             score -= 3
-        
+
         # 格式因素
         if text.isupper():  # 全大写可能是标题
             score += 2
@@ -336,11 +336,11 @@ class PaperMetadataExtractor:
             score += 1
         if ':' in text:  # 标题常包含冒号
             score += 1.5
-        
+
         # 内容因素
         if re.search(r'\b(scaling|learning|model|approach|method|system|framework|analysis)\b', text.lower()):
             score += 2  # 包含常见的学术论文关键词
-            
+
         # 避免误判
         if re.match(r'^\d+$', text):  # 纯数字
             score -= 10
@@ -348,7 +348,7 @@ class PaperMetadataExtractor:
             score -= 5
         if len(text.split()) <= 2 and len(text) < 15:  # 太短的短语
             score -= 3
-            
+
         # 元数据因素(如果有)
         if hasattr(element, 'metadata') and element.metadata:
             # 修复：正确处理ElementMetadata对象
@@ -357,7 +357,7 @@ class PaperMetadataExtractor:
                 font_size = getattr(element.metadata, 'font_size', None)
                 if font_size is not None and font_size > 14:  # 假设标准字体大小是12
                     score += 3
-                    
+
                 font_weight = getattr(element.metadata, 'font_weight', None)
                 if font_weight == 'bold':
                     score += 2  # 粗体加分
@@ -372,7 +372,7 @@ class PaperMetadataExtractor:
                 except Exception:
                     # 如果所有尝试都失败，忽略元数据处理
                     pass
-        
+
         return score
 
     def _extract_abstract_and_keywords(self, elements, metadata: PaperMetadata) -> None:
@@ -380,23 +380,23 @@ class PaperMetadataExtractor:
         abstract_found = False
         keywords_found = False
         abstract_text = []
-        
+
         for i, element in enumerate(elements):
             element_text = str(element).strip().lower()
-            
+
             # 寻找摘要部分
             if not abstract_found and (
-                isinstance(element, Title) and 
+                isinstance(element, Title) and
                 re.search(self.SECTION_PATTERNS['abstract'], element_text, re.IGNORECASE)
             ):
                 abstract_found = True
                 continue
-            
+
             # 如果找到摘要部分，收集内容直到遇到关键词部分或新章节
             if abstract_found and not keywords_found:
                 # 检查是否遇到关键词部分或新章节
                 if (
-                    isinstance(element, Title) or 
+                    isinstance(element, Title) or
                     re.search(self.SECTION_PATTERNS['keywords'], element_text, re.IGNORECASE) or
                     re.match(r'\b(introduction|引言|method|方法)\b', element_text, re.IGNORECASE)
                 ):
@@ -406,25 +406,25 @@ class PaperMetadataExtractor:
                     # 收集摘要文本
                     if isinstance(element, (Text, NarrativeText)) and element_text:
                         abstract_text.append(element_text)
-            
+
             # 如果找到关键词部分，提取关键词
             if keywords_found and not abstract_found and not metadata.keywords:
                 if isinstance(element, (Text, NarrativeText)):
                     # 清除可能的"关键词:"/"Keywords:"前缀
                     cleaned_text = re.sub(r'^\s*(关键词|keywords|key\s+words)\s*[：:]\s*', '', element_text, flags=re.IGNORECASE)
-                    
+
                     # 尝试按不同分隔符分割
                     for separator in [';', '；', ',', '，']:
                         if separator in cleaned_text:
                             metadata.keywords = [k.strip() for k in cleaned_text.split(separator) if k.strip()]
                             break
-                    
+
                     # 如果未能分割，将整个文本作为一个关键词
                     if not metadata.keywords and cleaned_text:
                         metadata.keywords = [cleaned_text]
-                    
+
                     keywords_found = False  # 已提取关键词，停止处理
-        
+
         # 设置摘要文本
         if abstract_text:
             metadata.abstract = self.config.paragraph_separator.join(abstract_text)
@@ -433,22 +433,22 @@ class PaperMetadataExtractor:
         """提取其他元数据信息"""
         for element in elements[:30]:  # 只检查文档前部分
             element_text = str(element).strip()
-            
+
             # 尝试匹配DOI
             doi_match = re.search(r'(doi|DOI):\s*(10\.\d{4,}\/[a-zA-Z0-9.-]+)', element_text)
             if doi_match and not metadata.doi:
                 metadata.doi = doi_match.group(2)
-            
+
             # 尝试匹配日期
             date_match = re.search(r'(published|received|accepted|submitted):\s*(\d{1,2}\s+[a-zA-Z]+\s+\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2})', element_text, re.IGNORECASE)
             if date_match and not metadata.date:
                 metadata.date = date_match.group(2)
-                
+
             # 尝试匹配年份
             year_match = re.search(r'\b(19|20)\d{2}\b', element_text)
             if year_match and not metadata.year:
                 metadata.year = year_match.group(0)
-                
+
             # 尝试匹配期刊/会议名称
             journal_match = re.search(r'(journal|conference):\s*([^,;.]+)', element_text, re.IGNORECASE)
             if journal_match:
@@ -490,4 +490,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

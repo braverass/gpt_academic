@@ -13,7 +13,7 @@ from llama_index.core.storage.storage_context import StorageContext
 
 
 class GptacVectorStoreIndex(VectorStoreIndex):
-    
+
     @classmethod
     def default_vector_store(
         cls,
@@ -55,4 +55,3 @@ class GptacVectorStoreIndex(VectorStoreIndex):
                 embed_model=embed_model,
                 **kwargs,
             )
-

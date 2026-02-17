@@ -150,18 +150,18 @@ class WordFormatter:
                 try:
                     ref_title = self.doc.add_paragraph(style='Reference_Title_Style')
                     ref_title.add_run("参考文献")
-                    
+
                     for idx, paper in enumerate(ranked_papers, 1):
                         try:
                             ref_para = self.doc.add_paragraph(style='Reference_Style')
                             ref_para.add_run(f'[{idx}] ').bold = True
-                            
+
                             # 添加作者
                             authors = ', '.join(paper.authors[:3])
                             if len(paper.authors) > 3:
                                 authors += ' et al.'
                             ref_para.add_run(f'{authors}. ')
-                            
+
                             # 添加标题
                             title_run = ref_para.add_run(paper.title)
                             title_run.italic = True
@@ -171,24 +171,24 @@ class WordFormatter:
                                     self._add_hyperlink(ref_para, paper.title, paper.url)
                                 except Exception as e:
                                     print(f"添加超链接失败: {str(e)}")
-                            
+
                             # 添加期刊/会议信息
                             if paper.venue_name:
                                 ref_para.add_run(f'. {paper.venue_name}')
-                            
+
                             # 添加年份
                             if paper.year:
                                 ref_para.add_run(f', {paper.year}')
-                            
+
                             # 添加DOI
                             if paper.doi:
                                 ref_para.add_run('. ')
                                 if "arxiv" in paper.url:
                                     doi_url = paper.doi
-                                else:   
+                                else:
                                     doi_url = f'https://doi.org/{paper.doi}'
                                 self._add_hyperlink(ref_para, f'DOI: {paper.doi}', doi_url)
-                            
+
                             ref_para.add_run('.')
                         except Exception as e:
                             print(f"添加第 {idx} 篇参考文献失败: {str(e)}")
@@ -198,7 +198,7 @@ class WordFormatter:
                     raise
 
             return self.doc
-        
+
         except Exception as e:
             print(f"Word文档创建失败: {str(e)}")
             import traceback
@@ -220,27 +220,26 @@ class WordFormatter:
         # 这个是在XML级别添加超链接
         part = paragraph.part
         r_id = part.relate_to(url, docx.opc.constants.RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
-        
+
         # 创建超链接XML元素
         hyperlink = docx.oxml.shared.OxmlElement('w:hyperlink')
         hyperlink.set(docx.oxml.shared.qn('r:id'), r_id)
-        
+
         # 创建文本运行
         new_run = docx.oxml.shared.OxmlElement('w:r')
         rPr = docx.oxml.shared.OxmlElement('w:rPr')
-        
+
         # 应用超链接样式
         rStyle = docx.oxml.shared.OxmlElement('w:rStyle')
         rStyle.set(docx.oxml.shared.qn('w:val'), 'Hyperlink')
         rPr.append(rStyle)
-        
+
         # 添加文本
         t = docx.oxml.shared.OxmlElement('w:t')
         t.text = text
         new_run.append(rPr)
         new_run.append(t)
         hyperlink.append(new_run)
-        
+
         # 将超链接添加到段落
         paragraph._p.append(hyperlink)
-

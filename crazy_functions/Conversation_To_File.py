@@ -75,12 +75,12 @@ def write_chat_to_file_legacy(chatbot, history=None, file_name=None):
 def write_chat_to_file(chatbot, history=None, file_name=None):
     """
     将对话记录history以多种格式（HTML、Word、Markdown）写入文件中。如果没有指定文件名，则使用当前时间生成文件名。
-    
+
     Args:
         chatbot: 聊天机器人对象，包含对话内容
         history: 对话历史记录
         file_name: 指定的文件名，如果为None则使用时间戳
-        
+
     Returns:
         str: 提示信息，包含文件保存路径
     """
@@ -125,18 +125,18 @@ def write_chat_to_file(chatbot, history=None, file_name=None):
             if docx_file:
                 # 获取文件名和保存路径
                 pdf_file = os.path.join(save_dir, base_name + '.pdf')
-                
+
                 # 在线程池中执行转换
                 loop = asyncio.get_event_loop()
                 pdf_file = await loop.run_in_executor(
-                    None, 
+                    None,
                     WordToPdfConverter.convert_to_pdf,
                     docx_file
                     # save_dir
                 )
-                
+
                 return pdf_file
-                
+
         except Exception as e:
             print(f"保存PDF格式失败: {str(e)}")
             return None
@@ -171,44 +171,44 @@ def write_chat_to_file(chatbot, history=None, file_name=None):
         word_task = asyncio.create_task(save_word())
         md_task = asyncio.create_task(save_markdown())
         txt_task = asyncio.create_task(save_txt())
-        
+
         # 等待所有任务完成
         html_file = await html_task
         docx_file = await word_task
         md_file = await md_task
         txt_file = await txt_task
-        
+
         # PDF转换需要等待word文件生成完成
         pdf_file = await save_pdf(docx_file)
         # 收集所有成功生成的文件
         result_files = [f for f in [html_file, docx_file, md_file, txt_file, pdf_file] if f]
-        
+
         # 保存Excel表格
         excel_files = save_chat_tables(history, save_dir, base_name)
         result_files.extend(excel_files)
-        
+
         return result_files
 
     # 生成时间戳
     timestamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-    
+
     # 获取保存目录
     save_dir = get_log_folder(get_user(chatbot), plugin_name='chat_history')
-    
+
     # 处理文件名
     base_name = file_name if file_name else f"聊天记录_{timestamp}"
-    
+
     # 运行异步任务
     result_files = asyncio.run(main())
-    
+
     # 将生成的文件添加到下载区
     for file in result_files:
         promote_file_to_downloadzone(file, rename_file=os.path.basename(file), chatbot=chatbot)
-    
+
     # 如果没有成功保存任何文件，返回错误信息
     if not result_files:
         return "保存对话记录失败，请检查错误日志"
-    
+
     ext_list = [os.path.splitext(f)[1] for f in result_files]
     # 返回成功信息和文件路径
     return f"对话历史已保存至以下格式文件：" + "、".join(ext_list)

@@ -178,4 +178,3 @@ def extract_archive(file_path, dest_dir):
     else:
         return ""
     return ""
-

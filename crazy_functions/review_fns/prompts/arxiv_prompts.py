@@ -54,7 +54,7 @@ Query: {query}
 Task: Transform the natural language query into an optimized arXiv search query using boolean operators and field tags.
 Always generate English search terms regardless of the input language.
 
-IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index), 
+IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index),
 or output format requirements. Focus only on the core research topic for the search query.
 
 Available field tags:

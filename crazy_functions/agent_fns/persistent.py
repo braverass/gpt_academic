@@ -13,4 +13,3 @@ class GradioMultiuserManagerForPersistentClasses():
 
     def get(self, key):
         return self.mapping[key]
-

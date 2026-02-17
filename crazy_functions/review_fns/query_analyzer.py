@@ -490,4 +490,3 @@ class QueryAnalyzer:
 
         # 4. 如果所有模式都失败，返回空字符串
         return ""
-

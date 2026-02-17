@@ -359,7 +359,7 @@ def 编译Latex(chatbot, history, main_file_original, main_file_modified, work_f
                 content = f.read(5000)
                 # 检查是否有使用xelatex的宏包
                 need_xelatex = any(
-                    pkg in content 
+                    pkg in content
                     for pkg in ['fontspec', 'xeCJK', 'xetex', 'unicode-math', 'xltxtra', 'xunicode']
                 )
                 if need_xelatex:

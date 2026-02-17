@@ -33,37 +33,37 @@ class PaperMetadata:
         self.venue_name = venue_name  # 新增
         self.venue_info = venue_info or {}  # 新增
         self.source = source  # 新增: 存储论文来源
-        
+
         # 新增：影响因子和分区信息，初始化为None
         self._if_factor = None
         self._cas_division = None
         self._jcr_division = None
-    
+
     @property
     def if_factor(self) -> Optional[float]:
         """获取影响因子"""
         return self._if_factor
-    
+
     @if_factor.setter
     def if_factor(self, value: float):
         """设置影响因子"""
         self._if_factor = value
-    
+
     @property
     def cas_division(self) -> Optional[str]:
         """获取中科院分区"""
         return self._cas_division
-    
+
     @cas_division.setter
     def cas_division(self, value: str):
         """设置中科院分区"""
         self._cas_division = value
-    
+
     @property
     def jcr_division(self) -> Optional[str]:
         """获取JCR分区"""
         return self._jcr_division
-    
+
     @jcr_division.setter
     def jcr_division(self, value: str):
         """设置JCR分区"""
@@ -71,32 +71,32 @@ class PaperMetadata:
 
 class DataSource(ABC):
     """数据源基类"""
-    
+
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key
         self._initialize()
-    
+
     @abstractmethod
     def _initialize(self) -> None:
         """初始化数据源"""
         pass
-    
+
     @abstractmethod
     async def search(self, query: str, limit: int = 100) -> List[PaperMetadata]:
         """搜索论文"""
         pass
-    
+
     @abstractmethod
     async def get_paper_details(self, paper_id: str) -> PaperMetadata:
         """获取论文详细信息"""
         pass
-    
+
     @abstractmethod
     async def get_citations(self, paper_id: str) -> List[PaperMetadata]:
         """获取引用该论文的文献"""
         pass
-    
+
     @abstractmethod
     async def get_references(self, paper_id: str) -> List[PaperMetadata]:
         """获取该论文引用的文献"""
-        pass 
+        pass

@@ -382,7 +382,7 @@ def Latex翻译中文并重新编译PDF(txt, llm_kwargs, plugin_kwargs, chatbot,
         success, downloaded = check_gptac_cloud(arxiv_id, chatbot)
         if success:
             chatbot.append([
-                f"检测到GPTAC云端存在翻译版本, 如果不满意翻译结果, 请禁用云端分享, 然后重新执行。", 
+                f"检测到GPTAC云端存在翻译版本, 如果不满意翻译结果, 请禁用云端分享, 然后重新执行。",
                 None
             ])
             yield from update_ui(chatbot=chatbot, history=history)
@@ -429,7 +429,7 @@ def Latex翻译中文并重新编译PDF(txt, llm_kwargs, plugin_kwargs, chatbot,
         if allow_gptac_cloud_io and arxiv_id:
             # 如果用户允许，我们将翻译好的arxiv论文PDF上传到GPTAC学术云
             from crazy_functions.latex_fns.latex_actions import upload_to_gptac_cloud_if_user_allow
-            threading.Thread(target=upload_to_gptac_cloud_if_user_allow, 
+            threading.Thread(target=upload_to_gptac_cloud_if_user_allow,
                 args=(chatbot, arxiv_id), daemon=True).start()
 
         chatbot.append((f"成功啦", '请查收结果（压缩包）...'))

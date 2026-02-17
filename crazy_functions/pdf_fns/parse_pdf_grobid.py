@@ -22,5 +22,3 @@ def 解析PDF_基于GROBID(file_manifest, project_folder, llm_kwargs, plugin_kwa
         yield from translate_pdf(article_dict, llm_kwargs, chatbot, fp, generated_conclusion_files, TOKEN_LIMIT_PER_FRAGMENT, DST_LANG, plugin_kwargs=plugin_kwargs)
     chatbot.append(("给出输出文件清单", str(generated_conclusion_files + generated_html_files)))
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面
-
-

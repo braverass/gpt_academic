@@ -8,7 +8,7 @@ Query: {query}
 Task: Transform the natural language query into an optimized ADS search query.
 Always generate English search terms regardless of the input language.
 
-IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index), 
+IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index),
 or output format requirements. Focus only on the core research topic for the search query.
 
 Relevant research areas for ADS:
@@ -72,5 +72,5 @@ Focus on creating precise queries that will return relevant astronomical and phy
 Always generate English search terms regardless of the input language.
 Consider using field-specific search terms and appropriate filters to improve search accuracy.
 
-Remember: ADS is specifically for astronomy, astrophysics, and physics research. 
-Medical, biological, or general research queries should return "none".""" 
+Remember: ADS is specifically for astronomy, astrophysics, and physics research.
+Medical, biological, or general research queries should return "none"."""

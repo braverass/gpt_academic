@@ -109,7 +109,7 @@ def select_api_key(keys, llm_model):
     if llm_model.startswith('cohere-'):
         for k in key_list:
             if is_cohere_api_key(k): avail_key_list.append(k)
-    
+
     if llm_model.startswith('openrouter-'):
         for k in key_list:
             if is_openroute_api_key(k): avail_key_list.append(k)

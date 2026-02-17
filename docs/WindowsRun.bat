@@ -11,7 +11,7 @@ if not exist "%ENV_PATH%" (
     echo Extracting environment...
     mkdir "%ENV_PATH%"
     tar -xzf gpt.tar.gz -C "%ENV_PATH%"
-    
+
     :: 运行conda环境激活脚本
     call "%ENV_PATH%\Scripts\activate.bat"
 ) else (

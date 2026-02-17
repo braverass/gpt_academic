@@ -33,4 +33,3 @@ class Document_Conversation_Wrap(GptAcademicPluginTemplate):
         执行插件
         """
         yield from 批量文件询问(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, user_request)
-

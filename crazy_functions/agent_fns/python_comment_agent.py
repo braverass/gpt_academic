@@ -322,10 +322,10 @@ class PythonCodeComment():
         self.llm_kwargs['temperature'] = 0
         result = predict_no_ui_long_connection(
             inputs=self.core_prompt.format(
-                LANG=self.language, 
-                FILE_BASENAME=self.file_basename, 
-                THE_CODE=code, 
-                INDENT_REMINDER=indent_reminder, 
+                LANG=self.language,
+                FILE_BASENAME=self.file_basename,
+                THE_CODE=code,
+                INDENT_REMINDER=indent_reminder,
                 BRIEF_REMINDER=brief_reminder,
                 HINT_REMINDER=hint_reminder
             ),
@@ -350,7 +350,7 @@ class PythonCodeComment():
             return code_block
         else:
             return code
-        
+
     def get_markdown_block_in_html(self, html):
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(html, 'lxml')
@@ -413,7 +413,7 @@ class PythonCodeComment():
                 next_batch, line_no_start, line_no_end = self.get_next_batch()
                 self.observe_window_update(f"正在处理{self.file_basename} - {line_no_start}/{len(self.full_context)}\n")
                 # yield from update_ui_latest_msg(f"({self.file_basename}) 处理代码片段:\n\n{next_batch}", chatbot=chatbot, history=history, delay=0)
-                
+
                 hint = None
                 MAX_ATTEMPT = 2
                 for attempt in range(MAX_ATTEMPT):

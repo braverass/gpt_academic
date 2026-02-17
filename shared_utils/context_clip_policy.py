@@ -109,7 +109,7 @@ def auto_context_clip_each_message(current, history):
     if len(context) < len(max_clip_ratio):
         # match the length of two array
         max_clip_ratio = max_clip_ratio[-len(context):]
-    
+
     # compute rank
     clip_prior_weight = [(token_num/clip_token_len + (len(context) - index)*0.1) for index, token_num in enumerate(context_token_num)]
     # print('clip_prior_weight', clip_prior_weight)

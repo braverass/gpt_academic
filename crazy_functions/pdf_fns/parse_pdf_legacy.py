@@ -107,5 +107,3 @@ def 解析PDF_简单拆解(file_manifest, project_folder, llm_kwargs, plugin_kwa
         promote_file_to_downloadzone(html_path, rename_file=rename_file, chatbot=chatbot)
     chatbot.append(("给出输出文件清单", str(generated_conclusion_files + generated_html_files)))
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面
-
-

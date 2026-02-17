@@ -53,4 +53,3 @@ if "本地模型":
             inputs="请问什么是质子？", llm_kwargs=llm_kwargs, history=["你好", "我好！"], sys_prompt=""
         )
         print("final result:", result)
-

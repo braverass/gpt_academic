@@ -118,9 +118,9 @@ def 注释源代码(file_manifest, project_folder, llm_kwargs, plugin_kwargs, ch
         file_links = generate_file_link(preview_html_list)
 
         yield from update_ui_latest_msg(
-            f"当前任务: <br/>{'<br/>'.join(tasks)}.<br/>" + 
-            f"剩余源文件数量: {remain}.<br/>" + 
-            f"已完成的文件: {sum(worker_done)}.<br/>" + 
+            f"当前任务: <br/>{'<br/>'.join(tasks)}.<br/>" +
+            f"剩余源文件数量: {remain}.<br/>" +
+            f"已完成的文件: {sum(worker_done)}.<br/>" +
             file_links +
             "<br/>" +
             ''.join(['.']*(cnt % 10 + 1)

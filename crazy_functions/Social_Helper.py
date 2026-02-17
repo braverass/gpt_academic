@@ -75,7 +75,7 @@ class SocialNetworkWorker(SaveAndLoad):
             pydantic_cls=FriendList
         )
         if friend.friends_list:
-            for f in friend.friends_list: 
+            for f in friend.friends_list:
                 self.add_friend(f)
             msg = f"成功添加{len(friend.friends_list)}个联系人: {str(friend.friends_list)}"
             yield from update_ui_latest_msg(lastmsg=msg, chatbot=chatbot, history=history, delay=0)
@@ -108,8 +108,8 @@ class SocialNetworkWorker(SaveAndLoad):
             class UserSociaIntention(BaseModel):
                 intention_type: str = Field(
                     description=
-                        f"The type of user intention. You must choose from {self.tools_to_select.keys()}.\n\n" 
-                        f"Explanation:\n{Explanation}", 
+                        f"The type of user intention. You must choose from {self.tools_to_select.keys()}.\n\n"
+                        f"Explanation:\n{Explanation}",
                     default="SocialAdvice"
                 )
             pydantic_cls_instance, err_msg = select_tool(
@@ -119,9 +119,9 @@ class SocialNetworkWorker(SaveAndLoad):
             )
         except Exception as e:
             yield from update_ui_latest_msg(
-                lastmsg=f"无法理解用户意图 {err_msg}", 
-                chatbot=chatbot, 
-                history=history, 
+                lastmsg=f"无法理解用户意图 {err_msg}",
+                chatbot=chatbot,
+                history=history,
                 delay=0
             )
             return
@@ -154,9 +154,9 @@ def I人助手(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, 
         social_network_worker = SOCIAL_NETWORK_WORKER_REGISTER[user_name]
     else:
         social_network_worker = SOCIAL_NETWORK_WORKER_REGISTER[user_name] = SocialNetworkWorker(
-            user_name, 
-            llm_kwargs, 
-            checkpoint_dir=checkpoint_dir, 
+            user_name,
+            llm_kwargs,
+            checkpoint_dir=checkpoint_dir,
             auto_load_checkpoint=True
         )
 
@@ -164,4 +164,3 @@ def I人助手(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, 
     yield from social_network_worker.run(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, user_request)
     social_network_worker.save_to_checkpoint(checkpoint_dir)
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面
-

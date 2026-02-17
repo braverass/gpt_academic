@@ -4,7 +4,7 @@ import httpx
 from toolbox import get_conf
 
 
-async def test_tts():    
+async def test_tts():
     async with httpx.AsyncClient() as client:
         try:
             # Forward the request to the target service
@@ -27,7 +27,7 @@ async def test_tts():
                 raise RuntimeError("ffmpeg未安装，无法处理EdgeTTS音频。安装方法见`https://github.com/jiaaro/pydub#getting-ffmpeg-set-up`")
         except httpx.RequestError as e:
             raise RuntimeError(f"请求失败: {e}")
-        
+
 if __name__ == "__main__":
     import asyncio
     asyncio.run(test_tts())

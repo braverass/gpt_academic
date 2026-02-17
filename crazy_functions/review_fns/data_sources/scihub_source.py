@@ -54,12 +54,12 @@ class SciHub:
         """测试代理连接是否可用"""
         if not self.use_proxy:
             return True
-            
+
         try:
             # 测试代理连接
             test_response = requests.get(
-                'https://httpbin.org/ip', 
-                proxies=self.proxies, 
+                'https://httpbin.org/ip',
+                proxies=self.proxies,
                 timeout=10
             )
             if test_response.status_code == 200:
@@ -92,13 +92,13 @@ class SciHub:
 
         last_exception = None
         working_mirrors = []
-        
+
         # 先测试哪些镜像可用
         logger.info("正在测试镜像站点可用性...")
         for mirror in self.MIRRORS:
             try:
                 test_response = requests.get(
-                    mirror, 
+                    mirror,
                     headers=self.headers,
                     proxies=self.proxies,
                     timeout=10
@@ -111,19 +111,19 @@ class SciHub:
             except Exception as e:
                 logger.debug(f"镜像 {mirror} 不可用: {str(e)}")
                 continue
-        
+
         if not working_mirrors:
             raise Exception("没有找到可用的镜像站点")
-        
+
         logger.info(f"找到 {len(working_mirrors)} 个可用镜像，开始尝试下载...")
-        
+
         # 使用可用的镜像进行下载
         for mirror in working_mirrors:
             try:
                 res = requests.post(
-                    mirror, 
-                    headers=self.headers, 
-                    data=self.payload, 
+                    mirror,
+                    headers=self.headers,
+                    data=self.payload,
                     proxies=self.proxies,
                     timeout=self.timeout
                 )
@@ -136,7 +136,7 @@ class SciHub:
                 logger.error(f"尝试镜像 {mirror} 失败: {str(e)}")
                 last_exception = e
                 continue
-        
+
         if last_exception:
             raise last_exception
         raise Exception("所有可用镜像站点均无法完成下载")
@@ -161,7 +161,7 @@ class SciHub:
                         content_url = pdf_links[0].get('href')
                     else:
                         raise AttributeError("未找到PDF链接")
-            
+
             if content_url:
                 content_url = content_url.replace('#navpanes=0&view=FitH', '').replace('//', '/')
                 if not content_url.endswith('.pdf') and 'pdf' not in content_url.lower():
@@ -186,7 +186,7 @@ class SciHub:
                 # 方法1：直接下载
                 lambda: requests.get(pdf_url, proxies=self.proxies, timeout=self.timeout),
                 # 方法2：添加 Referer 头
-                lambda: requests.get(pdf_url, proxies=self.proxies, timeout=self.timeout, 
+                lambda: requests.get(pdf_url, proxies=self.proxies, timeout=self.timeout,
                                    headers={**self.headers, 'Referer': self.url}),
                 # 方法3：使用原始域名作为 Referer
                 lambda: requests.get(pdf_url, proxies=self.proxies, timeout=self.timeout,
@@ -229,12 +229,12 @@ class SciHub:
                         f"https://sci-hub.ren/downloads/{file_part}",
                         f"https://sci-hub.tf/downloads/{file_part}"
                     ]
-                    
+
                     for alt_url in alternative_mirrors:
                         try:
                             response = requests.get(
-                                alt_url, 
-                                proxies=self.proxies, 
+                                alt_url,
+                                proxies=self.proxies,
                                 timeout=self.timeout,
                                 headers={**self.headers, 'Referer': alt_url.split('/downloads')[0]}
                             )
@@ -249,9 +249,9 @@ class SciHub:
 
             except Exception as e:
                 logger.error(f"所有下载方式都失败: {str(e)}")
-            
+
             return None
-        
+
         except Exception as e:
             logger.error(f"下载PDF文件失败: {str(e)}")
             return None
@@ -261,7 +261,7 @@ class SciHub:
         for attempt in range(2):  # 最多重试3次
             try:
                 logger.info(f"开始第 {attempt + 1} 次尝试下载论文: {self.doi}")
-                
+
                 # 获取PDF下载链接
                 response = self._send_request()
                 pdf_url = self._extract_url(response)
@@ -281,7 +281,7 @@ class SciHub:
                 pdf_name = f"{self.doi.replace('/', '_').replace(':', '_')}.pdf"
                 pdf_path = self.path.joinpath(pdf_name)
                 pdf_path.write_bytes(pdf_content)
-                
+
                 logger.info(f"成功下载论文: {pdf_name}，文件大小: {len(pdf_content)} bytes")
                 return str(pdf_path)
 
@@ -292,7 +292,7 @@ class SciHub:
                     logger.info(f"等待 {wait_time} 秒后重试...")
                     time.sleep(wait_time)
                 continue
-                
+
         raise Exception(f"无法下载论文 {self.doi}，所有重试都失败了")
 
 # Usage Example
@@ -300,19 +300,19 @@ if __name__ == '__main__':
     # 创建一个用于保存PDF的目录
     save_path = Path('./downloaded_papers')
     save_path.mkdir(exist_ok=True)
-    
+
     # DOI示例
     sample_doi = '10.3897/rio.7.e67379'  # 这是一篇Nature的论文DOI
-    
+
     try:
         # 初始化SciHub下载器，先尝试使用代理
         logger.info("尝试使用代理模式...")
         downloader = SciHub(doi=sample_doi, path=save_path, use_proxy=True)
-        
+
         # 开始下载
         result = downloader.fetch()
         print(f"论文已保存到: {result}")
-        
+
     except Exception as e:
         print(f"使用代理模式失败: {str(e)}")
         try:

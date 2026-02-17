@@ -234,4 +234,3 @@ class ContentFoldingManager:
             raise TypeError("Invalid metadata type")
 
         return formatter.format(content, metadata, options)
-

@@ -43,17 +43,17 @@ class BaseHandler(ABC):
             # 构建查询字符串
             if min_stars > 0 and "stars:>" not in query:
                 query += f" stars:>{min_stars}"
-                
+
             if language and "language:" not in query:
                 query += f" language:{language}"
-                
+
             # 执行搜索
             result = await self.github.search_repositories(
                 query=query,
                 sort=sort,
                 per_page=per_page
             )
-            
+
             if result and "items" in result:
                 return result["items"]
             return []
@@ -73,7 +73,7 @@ class BaseHandler(ABC):
                 sort=sort,
                 per_page=per_page
             )
-            
+
             # 搜索中文仓库
             chinese_results = await self._search_repositories(
                 query=chinese_query,
@@ -82,28 +82,28 @@ class BaseHandler(ABC):
                 sort=sort,
                 per_page=per_page
             )
-            
+
             # 合并结果，去除重复项
             merged_results = []
             seen_repos = set()
-            
+
             # 优先添加英文结果
             for repo in english_results:
                 repo_id = repo.get('id')
                 if repo_id and repo_id not in seen_repos:
                     seen_repos.add(repo_id)
                     merged_results.append(repo)
-            
+
             # 添加中文结果（排除重复）
             for repo in chinese_results:
                 repo_id = repo.get('id')
                 if repo_id and repo_id not in seen_repos:
                     seen_repos.add(repo_id)
                     merged_results.append(repo)
-            
+
             # 按星标数重新排序
             merged_results.sort(key=lambda x: x.get('stargazers_count', 0), reverse=True)
-            
+
             return merged_results[:per_page]  # 返回合并后的前per_page个结果
         except Exception as e:
             print(f"双语仓库搜索出错: {str(e)}")
@@ -115,13 +115,13 @@ class BaseHandler(ABC):
             # 构建查询字符串
             if language and "language:" not in query:
                 query += f" language:{language}"
-                
+
             # 执行搜索
             result = await self.github.search_code(
                 query=query,
                 per_page=per_page
             )
-            
+
             if result and "items" in result:
                 return result["items"]
             return []
@@ -138,18 +138,18 @@ class BaseHandler(ABC):
                 language=language,
                 per_page=per_page
             )
-            
+
             # 搜索中文代码
             chinese_results = await self._search_code(
                 query=chinese_query,
                 language=language,
                 per_page=per_page
             )
-            
+
             # 合并结果，去除重复项
             merged_results = []
             seen_files = set()
-            
+
             # 优先添加英文结果
             for item in english_results:
                 # 使用文件URL作为唯一标识
@@ -157,18 +157,18 @@ class BaseHandler(ABC):
                 if file_url and file_url not in seen_files:
                     seen_files.add(file_url)
                     merged_results.append(item)
-            
+
             # 添加中文结果（排除重复）
             for item in chinese_results:
                 file_url = item.get('html_url', '')
                 if file_url and file_url not in seen_files:
                     seen_files.add(file_url)
                     merged_results.append(item)
-            
+
             # 对结果进行排序，优先显示匹配度高的结果
             # 由于无法直接获取匹配度，这里使用仓库的星标数作为替代指标
             merged_results.sort(key=lambda x: x.get('repository', {}).get('stargazers_count', 0), reverse=True)
-            
+
             return merged_results[:per_page]  # 返回合并后的前per_page个结果
         except Exception as e:
             print(f"双语代码搜索出错: {str(e)}")
@@ -181,7 +181,7 @@ class BaseHandler(ABC):
                 query=query,
                 per_page=per_page
             )
-            
+
             if result and "items" in result:
                 return result["items"]
             return []
@@ -197,34 +197,34 @@ class BaseHandler(ABC):
                 query=english_query,
                 per_page=per_page
             )
-            
+
             # 搜索中文用户
             chinese_results = await self._search_users(
                 query=chinese_query,
                 per_page=per_page
             )
-            
+
             # 合并结果，去除重复项
             merged_results = []
             seen_users = set()
-            
+
             # 优先添加英文结果
             for user in english_results:
                 user_id = user.get('id')
                 if user_id and user_id not in seen_users:
                     seen_users.add(user_id)
                     merged_results.append(user)
-            
+
             # 添加中文结果（排除重复）
             for user in chinese_results:
                 user_id = user.get('id')
                 if user_id and user_id not in seen_users:
                     seen_users.add(user_id)
                     merged_results.append(user)
-            
+
             # 按关注者数量进行排序
             merged_results.sort(key=lambda x: x.get('followers', 0), reverse=True)
-            
+
             return merged_results[:per_page]  # 返回合并后的前per_page个结果
         except Exception as e:
             print(f"双语用户搜索出错: {str(e)}")
@@ -237,7 +237,7 @@ class BaseHandler(ABC):
                 query=query,
                 per_page=per_page
             )
-            
+
             if result and "items" in result:
                 return result["items"]
             return []
@@ -253,35 +253,35 @@ class BaseHandler(ABC):
                 query=english_query,
                 per_page=per_page
             )
-            
+
             # 搜索中文主题
             chinese_results = await self._search_topics(
                 query=chinese_query,
                 per_page=per_page
             )
-            
+
             # 合并结果，去除重复项
             merged_results = []
             seen_topics = set()
-            
+
             # 优先添加英文结果
             for topic in english_results:
                 topic_name = topic.get('name')
                 if topic_name and topic_name not in seen_topics:
                     seen_topics.add(topic_name)
                     merged_results.append(topic)
-            
+
             # 添加中文结果（排除重复）
             for topic in chinese_results:
                 topic_name = topic.get('name')
                 if topic_name and topic_name not in seen_topics:
                     seen_topics.add(topic_name)
                     merged_results.append(topic)
-            
+
             # 可以按流行度进行排序（如果有）
             if merged_results and 'featured' in merged_results[0]:
                 merged_results.sort(key=lambda x: x.get('featured', False), reverse=True)
-            
+
             return merged_results[:per_page]  # 返回合并后的前per_page个结果
         except Exception as e:
             print(f"双语主题搜索出错: {str(e)}")
@@ -290,49 +290,49 @@ class BaseHandler(ABC):
     async def _get_repo_details(self, repos: List[Dict]) -> List[Dict]:
         """获取仓库详细信息"""
         enhanced_repos = []
-        
+
         for repo in repos:
             try:
                 # 获取README信息
                 owner = repo.get('owner', {}).get('login') if repo.get('owner') is not None else None
                 repo_name = repo.get('name')
-                
+
                 if owner and repo_name:
                     readme = await self.github.get_repo_readme(owner, repo_name)
                     if readme and "decoded_content" in readme:
                         # 提取README的前1000个字符作为摘要
                         repo['readme_excerpt'] = readme["decoded_content"][:1000] + "..."
-                    
+
                     # 获取语言使用情况
                     languages = await self.github.get_repository_languages(owner, repo_name)
                     if languages:
                         repo['languages_detail'] = languages
-                    
+
                     # 获取最新发布版本
                     releases = await self.github.get_repo_releases(owner, repo_name, per_page=1)
                     if releases and len(releases) > 0:
                         repo['latest_release'] = releases[0]
-                    
+
                     # 获取主题标签
                     topics = await self.github.get_repo_topics(owner, repo_name)
                     if topics and "names" in topics:
                         repo['topics'] = topics["names"]
-                
+
                 enhanced_repos.append(repo)
             except Exception as e:
                 print(f"获取仓库 {repo.get('full_name')} 详情时出错: {str(e)}")
                 enhanced_repos.append(repo)  # 添加原始仓库信息
-                
+
         return enhanced_repos
 
     def _format_repos(self, repos: List[Dict]) -> str:
         """格式化仓库列表"""
         formatted = []
-        
+
         for i, repo in enumerate(repos, 1):
             # 构建仓库URL
             repo_url = repo.get('html_url', '')
-            
+
             # 构建完整的引用
             reference = (
                 f"{i}. **{repo.get('full_name', '')}**\n"
@@ -344,25 +344,25 @@ class BaseHandler(ABC):
                 f"   - 创建时间: {repo.get('created_at', 'N/A')[:10]}\n"
                 f"   - URL: <a href='{repo_url}' target='_blank'>{repo_url}</a>\n"
             )
-            
+
             # 添加主题标签(如果有)
             if repo.get('topics'):
                 topics_str = ", ".join(repo.get('topics'))
                 reference += f"   - 主题标签: {topics_str}\n"
-                
+
             # 添加最新发布版本(如果有)
             if repo.get('latest_release'):
                 release = repo.get('latest_release')
                 reference += f"   - 最新版本: {release.get('tag_name', 'N/A')} ({release.get('published_at', 'N/A')[:10]})\n"
-                
+
             # 添加README摘要(如果有)
             if repo.get('readme_excerpt'):
                 # 截断README，只取前300个字符
                 readme_short = repo.get('readme_excerpt')[:300].replace('\n', ' ')
                 reference += f"   - README摘要: {readme_short}...\n"
-                
+
             formatted.append(reference)
-            
+
         return "\n".join(formatted)
 
     def _generate_apology_prompt(self, criteria: SearchCriteria) -> str:
@@ -383,4 +383,4 @@ class BaseHandler(ABC):
     def _get_current_time(self) -> str:
         """获取当前时间信息"""
         now = datetime.now()
-        return now.strftime("%Y年%m月%d日") 
+        return now.strftime("%Y年%m月%d日")

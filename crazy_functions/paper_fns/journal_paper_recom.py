@@ -26,7 +26,7 @@ class RecommendationQuestion:
 
 class JournalConferenceRecommender:
     """论文期刊会议推荐器"""
-    
+
     def __init__(self, llm_kwargs: Dict, plugin_kwargs: Dict, chatbot: List, history: List, system_prompt: str):
         """初始化推荐器"""
         self.llm_kwargs = llm_kwargs
@@ -36,7 +36,7 @@ class JournalConferenceRecommender:
         self.system_prompt = system_prompt
         self.paper_content = ""
         self.analysis_results = {}
-        
+
         # 定义论文分析问题库（针对期刊会议推荐）
         self.questions = [
             RecommendationQuestion(
@@ -64,19 +64,19 @@ class JournalConferenceRecommender:
                 description="目标受众与应用范围"
             ),
         ]
-        
+
         # 按重要性排序
         self.questions.sort(key=lambda q: q.importance, reverse=True)
-        
+
     def _load_paper(self, paper_path: str) -> Generator:
         """加载论文内容"""
         yield from update_ui(chatbot=self.chatbot, history=self.history)
-        
+
         # 使用TextContentLoader读取文件
         loader = TextContentLoader(self.chatbot, self.history)
 
         yield from loader.execute_single_file(paper_path)
-        
+
         # 获取加载的内容
         if len(self.history) >= 2 and self.history[-2]:
             self.paper_content = self.history[-2]
@@ -86,13 +86,13 @@ class JournalConferenceRecommender:
             self.chatbot.append(["错误", "无法读取论文内容，请检查文件是否有效"])
             yield from update_ui(chatbot=self.chatbot, history=self.history)
             return False
-            
+
     def _analyze_question(self, question: RecommendationQuestion) -> Generator:
         """分析单个问题"""
         try:
             # 创建分析提示
             prompt = f"请基于以下论文内容回答问题：\n\n{self.paper_content}\n\n问题：{question.question}"
-            
+
             # 使用单线程版本的请求函数
             response = yield from request_gpt_model_in_new_thread_with_ui_alive(
                 inputs=prompt,
@@ -102,12 +102,12 @@ class JournalConferenceRecommender:
                 history=[],  # 空历史，确保每个问题独立分析
                 sys_prompt="你是一个专业的学术期刊会议推荐专家，需要仔细分析论文内容并提供准确的分析。请保持客观、专业，并基于论文内容提供深入分析。"
             )
-            
+
             if response:
                 self.analysis_results[question.id] = response
                 return True
             return False
-            
+
         except Exception as e:
             self.chatbot.append(["错误", f"分析问题时出错: {str(e)}"])
             yield from update_ui(chatbot=self.chatbot, history=self.history)
@@ -117,14 +117,14 @@ class JournalConferenceRecommender:
         """生成期刊推荐"""
         self.chatbot.append(["生成期刊推荐", "正在基于论文分析结果生成期刊推荐..."])
         yield from update_ui(chatbot=self.chatbot, history=self.history)
-        
+
         # 构建期刊推荐提示
         journal_prompt = """请基于以下论文分析结果，为这篇论文推荐合适的学术期刊。
 
 推荐要求：
 1. 根据论文的创新性和工作质量，分别推荐不同级别的期刊：
    - 顶级期刊（影响因子>8或该领域顶级期刊）：2-3个
-   - 高质量期刊（影响因子4-8或该领域知名期刊）：3-4个  
+   - 高质量期刊（影响因子4-8或该领域知名期刊）：3-4个
    - 中等期刊（影响因子1.5-4或该领域认可期刊）：3-4个
    - 入门期刊（影响因子<1.5但声誉良好的期刊）：2-3个
 
@@ -157,13 +157,13 @@ class JournalConferenceRecommender:
 4. 提供针对性的投稿建议，考虑该学科的特点
 
 论文分析结果："""
-        
+
         for q in self.questions:
             if q.id in self.analysis_results:
                 journal_prompt += f"\n\n{q.description}:\n{self.analysis_results[q.id]}"
-        
+
         journal_prompt += "\n\n请提供详细的期刊推荐报告，重点关注期刊的层次性和适配性。请根据论文的具体学科领域，采用该领域通用的期刊评价标准和分类体系。"
-        
+
         try:
             response = yield from request_gpt_model_in_new_thread_with_ui_alive(
                 inputs=journal_prompt,
@@ -173,11 +173,11 @@ class JournalConferenceRecommender:
                 history=[],
                 sys_prompt="你是一个资深的跨学科学术期刊推荐专家，熟悉各个学科领域不同层次的期刊。请根据论文的具体学科和创新性，推荐从顶级到入门级的各层次期刊。不同学科有不同的期刊评价标准：理工科重视影响因子和SCI收录，社会科学重视SSCI和学科声誉，人文学科重视A&HCI和同行评议，医学领域重视PubMed收录、临床实用性、循证医学价值和伦理规范。请根据论文所属学科采用相应的评价标准。"
             )
-            
+
             if response:
                 return response
             return "期刊推荐生成失败"
-            
+
         except Exception as e:
             self.chatbot.append(["错误", f"生成期刊推荐时出错: {str(e)}"])
             yield from update_ui(chatbot=self.chatbot, history=self.history)
@@ -187,13 +187,13 @@ class JournalConferenceRecommender:
         """生成会议推荐"""
         self.chatbot.append(["生成会议推荐", "正在基于论文分析结果生成会议推荐..."])
         yield from update_ui(chatbot=self.chatbot, history=self.history)
-        
+
         # 获取当前时间信息
         current_time = datetime.now()
         current_date_str = current_time.strftime("%Y年%m月%d日")
         current_year = current_time.year
         current_month = current_time.month
-        
+
         # 构建会议推荐提示
         conference_prompt = f"""请基于以下论文分析结果，为这篇论文推荐合适的学术会议。
 
@@ -244,13 +244,13 @@ class JournalConferenceRecommender:
    - 具体的时间安排建议
 
 论文分析结果："""
-        
+
         for q in self.questions:
             if q.id in self.analysis_results:
                 conference_prompt += f"\n\n{q.description}:\n{self.analysis_results[q.id]}"
-        
+
         conference_prompt += f"\n\n请提供详细的会议推荐报告，重点关注会议的层次性和时效性。请根据论文的具体学科领域，采用该领域通用的会议评价标准。\n\n**特别注意：请根据当前时间{current_date_str}和各会议的历史举办时间规律，准确推断{current_year}年和{current_year+1}年的会议时间安排，不要使用虚构的时间。**"
-        
+
         try:
             response = yield from request_gpt_model_in_new_thread_with_ui_alive(
                 inputs=conference_prompt,
@@ -260,11 +260,11 @@ class JournalConferenceRecommender:
                 history=[],
                 sys_prompt="你是一个资深的跨学科学术会议推荐专家，熟悉各个学科领域不同层次的学术会议。请根据论文的具体学科和创新性，推荐从顶级到专业级的各层次会议。不同学科有不同的会议评价标准和文化：理工科重视技术创新和国际影响力，社会科学重视理论贡献和社会意义，人文学科重视学术深度和文化价值，医学领域重视临床实用性、CME学分认证、专科权威性和伦理规范。请根据论文所属学科采用相应的评价标准和推荐策略。"
             )
-            
+
             if response:
                 return response
             return "会议推荐生成失败"
-            
+
         except Exception as e:
             self.chatbot.append(["错误", f"生成会议推荐时出错: {str(e)}"])
             yield from update_ui(chatbot=self.chatbot, history=self.history)
@@ -274,12 +274,12 @@ class JournalConferenceRecommender:
         """生成优先级总结"""
         self.chatbot.append(["生成优先级总结", "正在生成投稿优先级总结..."])
         yield from update_ui(chatbot=self.chatbot, history=self.history)
-        
+
         # 获取当前时间信息
         current_time = datetime.now()
         current_date_str = current_time.strftime("%Y年%m月%d日")
         current_month = current_time.strftime("%Y年%m月")
-        
+
         # 计算未来时间点
         def add_months(date, months):
             """安全地添加月份"""
@@ -288,11 +288,11 @@ class JournalConferenceRecommender:
             month = month % 12 + 1
             day = min(date.day, calendar.monthrange(year, month)[1])
             return date.replace(year=year, month=month, day=day)
-        
+
         future_6_months = add_months(current_time, 6).strftime('%Y年%m月')
         future_12_months = add_months(current_time, 12).strftime('%Y年%m月')
         future_year = (current_time.year + 1)
-        
+
         priority_prompt = f"""请基于以下期刊和会议推荐结果，生成一个综合的投稿优先级总结。
 
 **重要提示：当前时间是{current_date_str}（{current_month}），请基于这个时间点制定投稿计划。**
@@ -343,7 +343,7 @@ class JournalConferenceRecommender:
 请以表格形式总结前10个最推荐的投稿目标（期刊+会议），包括优先级排序、预期时间线和成功概率。
 
 **注意：所有时间规划都应基于当前时间{current_date_str}进行计算，不要使用虚构的时间。**"""
-        
+
         try:
             response = yield from request_gpt_model_in_new_thread_with_ui_alive(
                 inputs=priority_prompt,
@@ -353,20 +353,20 @@ class JournalConferenceRecommender:
                 history=[],
                 sys_prompt="你是一个资深的跨学科学术发表策略专家，熟悉各个学科的发表文化、惯例和要求。请综合考虑不同学科的特点：理工科通常重视期刊发表和影响因子，社会科学平衡期刊和专著，人文学科重视同行评议和学术声誉，医学重视临床意义和伦理规范。请为作者制定最适合其学科背景的投稿策略和时间规划。"
             )
-            
+
             if response:
                 return response
             return "优先级总结生成失败"
-            
+
         except Exception as e:
             self.chatbot.append(["错误", f"生成优先级总结时出错: {str(e)}"])
             yield from update_ui(chatbot=self.chatbot, history=self.history)
             return "优先级总结生成失败: " + str(e)
-    
+
     def save_recommendations(self, journal_recommendations: str, conference_recommendations: str, priority_summary: str) -> Generator:
         """保存推荐报告"""
         timestamp = time.strftime("%Y%m%d_%H%M%S")
-        
+
         # 保存为Markdown文件
         try:
             md_content = f"""# 论文期刊会议推荐报告
@@ -387,17 +387,17 @@ class JournalConferenceRecommender:
 
 # 详细分析结果
 """
-            
+
             # 添加详细分析结果
             for q in self.questions:
                 if q.id in self.analysis_results:
                     md_content += f"\n\n## {q.description}\n\n{self.analysis_results[q.id]}"
-                    
+
             result_file = write_history_to_file(
                 history=[md_content],
                 file_basename=f"期刊会议推荐_{timestamp}.md"
             )
-            
+
             if result_file and os.path.exists(result_file):
                 promote_file_to_downloadzone(result_file, chatbot=self.chatbot)
                 self.chatbot.append(["保存成功", f"推荐报告已保存至: {os.path.basename(result_file)}"])
@@ -408,34 +408,34 @@ class JournalConferenceRecommender:
         except Exception as e:
             self.chatbot.append(["警告", f"保存报告失败: {str(e)}"])
             yield from update_ui(chatbot=self.chatbot, history=self.history)
-    
+
     def recommend_venues(self, paper_path: str) -> Generator:
         """推荐期刊会议主流程"""
         # 加载论文
         success = yield from self._load_paper(paper_path)
         if not success:
             return
-        
+
         # 分析关键问题
         for question in self.questions:
             yield from self._analyze_question(question)
-        
+
         # 分别生成期刊和会议推荐
         journal_recommendations = yield from self._generate_journal_recommendations()
         conference_recommendations = yield from self._generate_conference_recommendations()
-        
+
         # 生成优先级总结
         priority_summary = yield from self._generate_priority_summary(journal_recommendations, conference_recommendations)
-        
+
         # 显示结果
         yield from update_ui(chatbot=self.chatbot, history=self.history)
-        
+
         # 保存报告
         yield from self.save_recommendations(journal_recommendations, conference_recommendations, priority_summary)
-        
+
         # 将完整的分析结果和推荐内容添加到历史记录中，方便用户继续提问
         self._add_to_history(journal_recommendations, conference_recommendations, priority_summary)
-        
+
     def _add_to_history(self, journal_recommendations: str, conference_recommendations: str, priority_summary: str):
         """将分析结果和推荐内容添加到历史记录中"""
         try:
@@ -453,20 +453,20 @@ class JournalConferenceRecommender:
 
 ## 📋 详细分析结果
 """
-            
+
             # 添加详细分析结果
             for q in self.questions:
                 if q.id in self.analysis_results:
                     history_content += f"\n### {q.description}\n{self.analysis_results[q.id]}\n"
-            
+
             history_content += "\n---\n💡 您现在可以基于以上分析结果继续提问，比如询问特定期刊的详细信息、投稿策略建议、或者对推荐结果的进一步解释。"
-            
+
             # 添加到历史记录中
             self.history.append("论文期刊会议推荐分析")
             self.history.append(history_content)
-            
+
             self.chatbot.append(["✅ 分析完成", "所有分析结果和推荐内容已添加到对话历史中，您可以继续基于这些内容提问。"])
-            
+
         except Exception as e:
             self.chatbot.append(["警告", f"添加到历史记录时出错: {str(e)}，但推荐报告已正常生成"])
             # 即使添加历史失败，也不影响主要功能
@@ -476,10 +476,10 @@ def _find_paper_file(path: str) -> str:
     """查找路径中的论文文件（简化版）"""
     if os.path.isfile(path):
         return path
-        
+
     # 支持的文件扩展名（按优先级排序）
     extensions = ["pdf", "docx", "doc", "txt", "md", "tex"]
-    
+
     # 简单地遍历目录
     if os.path.isdir(path):
         try:
@@ -488,7 +488,7 @@ def _find_paper_file(path: str) -> str:
                 potential_file = os.path.join(path, f"paper.{ext}")
                 if os.path.exists(potential_file) and os.path.isfile(potential_file):
                     return potential_file
-                    
+
             # 如果没找到特定命名的文件，检查目录中的所有文件
             for file in os.listdir(path):
                 file_path = os.path.join(path, file)
@@ -498,23 +498,23 @@ def _find_paper_file(path: str) -> str:
                         return file_path
         except Exception:
             pass  # 忽略任何错误
-    
+
     return None
 
 
 def download_paper_by_id(paper_info, chatbot, history) -> str:
     """下载论文并返回保存路径
-    
+
     Args:
         paper_info: 元组，包含论文ID类型（arxiv或doi）和ID值
         chatbot: 聊天机器人对象
         history: 历史记录
-        
+
     Returns:
         str: 下载的论文路径或None
     """
     id_type, paper_id = paper_info
-    
+
     # 创建保存目录 - 使用时间戳创建唯一文件夹
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     user_name = chatbot.get_user() if hasattr(chatbot, 'get_user') else "default"
@@ -524,28 +524,28 @@ def download_paper_by_id(paper_info, chatbot, history) -> str:
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     save_path = Path(save_dir)
-    
+
     chatbot.append([f"下载论文", f"正在下载{'arXiv' if id_type == 'arxiv' else 'DOI'} {paper_id} 的论文..."])
     update_ui(chatbot=chatbot, history=history)
-    
+
     pdf_path = None
-    
+
     try:
         if id_type == 'arxiv':
             # 使用改进的arxiv查询方法
             formatted_id = format_arxiv_id(paper_id)
             paper_result = get_arxiv_paper(formatted_id)
-            
+
             if not paper_result:
                 chatbot.append([f"下载失败", f"未找到arXiv论文: {paper_id}"])
                 update_ui(chatbot=chatbot, history=history)
                 return None
-            
+
             # 下载PDF
             filename = f"arxiv_{paper_id.replace('/', '_')}.pdf"
             pdf_path = str(save_path / filename)
             paper_result.download_pdf(filename=pdf_path)
-            
+
         else:  # doi
             # 下载DOI
             sci_hub = SciHub(
@@ -553,7 +553,7 @@ def download_paper_by_id(paper_info, chatbot, history) -> str:
                 path=save_path
             )
             pdf_path = sci_hub.fetch()
-        
+
         # 检查下载结果
         if pdf_path and os.path.exists(pdf_path):
             promote_file_to_downloadzone(pdf_path, chatbot=chatbot)
@@ -564,7 +564,7 @@ def download_paper_by_id(paper_info, chatbot, history) -> str:
             chatbot.append([f"下载失败", f"论文下载失败: {paper_id}"])
             update_ui(chatbot=chatbot, history=history)
             return None
-            
+
     except Exception as e:
         chatbot.append([f"下载错误", f"下载论文时出错: {str(e)}"])
         update_ui(chatbot=chatbot, history=history)
@@ -578,20 +578,20 @@ def 论文期刊会议推荐(txt: str, llm_kwargs: Dict, plugin_kwargs: Dict, ch
     # 初始化推荐器
     chatbot.append(["函数插件功能及使用方式", "论文期刊会议推荐：基于论文内容分析，为您推荐合适的学术期刊和会议投稿目标。适用于各个学科专业（自然科学、工程技术、医学、社会科学、人文学科等），根据不同学科的评价标准和发表文化，提供分层次的期刊会议推荐、影响因子分析、发表难度评估、投稿策略建议等。<br><br>📋 使用方式：<br>1、直接上传PDF文件<br>2、输入DOI号或arXiv ID<br>3、点击插件开始分析"])
     yield from update_ui(chatbot=chatbot, history=history)
-    
+
     paper_file = None
-    
+
     # 检查输入是否为论文ID（arxiv或DOI）
     paper_info = extract_paper_id(txt)
-    
+
     if paper_info:
         # 如果是论文ID，下载论文
         chatbot.append(["检测到论文ID", f"检测到{'arXiv' if paper_info[0] == 'arxiv' else 'DOI'} ID: {paper_info[1]}，准备下载论文..."])
         yield from update_ui(chatbot=chatbot, history=history)
-        
+
         # 下载论文
         paper_file = download_paper_by_id(paper_info, chatbot, history)
-        
+
         if not paper_file:
             report_exception(chatbot, history, a=f"下载论文失败", b=f"无法下载{'arXiv' if paper_info[0] == 'arxiv' else 'DOI'}论文: {paper_info[1]}")
             yield from update_ui(chatbot=chatbot, history=history)
@@ -602,21 +602,21 @@ def 论文期刊会议推荐(txt: str, llm_kwargs: Dict, plugin_kwargs: Dict, ch
             report_exception(chatbot, history, a=f"解析论文: {txt}", b=f"找不到文件或无权访问: {txt}")
             yield from update_ui(chatbot=chatbot, history=history)
             return
-            
+
         # 验证路径安全性
         user_name = chatbot.get_user()
         validate_path_safety(txt, user_name)
-        
+
         # 查找论文文件
         paper_file = _find_paper_file(txt)
-        
+
         if not paper_file:
             report_exception(chatbot, history, a=f"解析论文", b=f"在路径 {txt} 中未找到支持的论文文件")
             yield from update_ui(chatbot=chatbot, history=history)
             return
-    
+
     yield from update_ui(chatbot=chatbot, history=history)
-    
+
     # 确保paper_file是字符串
     if paper_file is not None and not isinstance(paper_file, str):
         # 尝试转换为字符串
@@ -626,10 +626,10 @@ def 论文期刊会议推荐(txt: str, llm_kwargs: Dict, plugin_kwargs: Dict, ch
             report_exception(chatbot, history, a=f"类型错误", b=f"论文路径不是有效的字符串: {type(paper_file)}")
             yield from update_ui(chatbot=chatbot, history=history)
             return
-    
+
     # 开始推荐
     chatbot.append(["开始分析", f"正在分析论文并生成期刊会议推荐: {os.path.basename(paper_file)}"])
     yield from update_ui(chatbot=chatbot, history=history)
-    
+
     recommender = JournalConferenceRecommender(llm_kwargs, plugin_kwargs, chatbot, history, system_prompt)
-    yield from recommender.recommend_venues(paper_file) 
+    yield from recommender.recommend_venues(paper_file)

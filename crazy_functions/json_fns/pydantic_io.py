@@ -108,4 +108,3 @@ class GptJsonIO():
                 logging.info('Repair json fail.')
                 raise JsonStringError('Cannot repair json.', str(e))
         return result
-

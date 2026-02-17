@@ -40,7 +40,7 @@ class WebExtractorConfig:
 
 class WebTextExtractor:
     """网页文本内容提取器
-    
+
     使用trafilatura库提取网页中的主要文本内容，去除广告、导航等无关内容。
     """
 
@@ -94,11 +94,11 @@ class WebTextExtractor:
             Exception: 下载失败时抛出异常
         """
         headers = {'User-Agent': self.config.user_agent}
-        
+
         for attempt in range(self.config.max_retries):
             try:
                 response = requests.get(
-                    url, 
+                    url,
                     headers=headers,
                     timeout=self.config.timeout
                 )
@@ -151,7 +151,7 @@ class WebTextExtractor:
                 raise ValueError(f"Invalid URL: {url}")
 
             self.logger.info(f"Processing URL: {url}")
-            
+
             # 下载网页
             html_content = self._download_webpage(url)
             if not html_content:
@@ -176,7 +176,7 @@ class WebTextExtractor:
 
             # 清理文本
             cleaned_text = self._cleanup_text(extracted_text)
-            
+
             return cleaned_text
 
         except Exception as e:

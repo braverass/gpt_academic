@@ -322,5 +322,3 @@ def generate_payload(inputs, llm_kwargs, history, system_prompt, stream):
     }
 
     return headers,payload
-
-

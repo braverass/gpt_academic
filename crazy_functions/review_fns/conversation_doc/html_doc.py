@@ -1,6 +1,6 @@
 class HtmlFormatter:
     """聊天记录HTML格式生成器"""
-    
+
     def __init__(self):
         self.css_styles = """
         :root {
@@ -38,21 +38,21 @@ class HtmlFormatter:
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slideIn {
             from { transform: translateX(-20px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        
+
         .container {
             animation: fadeIn 0.6s ease-out;
         }
-        
+
         .QaBox {
             animation: slideIn 0.5s ease-out;
             transition: all 0.3s ease;
         }
-        
+
         .QaBox:hover {
             transform: translateX(5px);
         }
@@ -124,7 +124,7 @@ class HtmlFormatter:
                 --text-color: #e2e8f0;
                 --border-color: #1e293b;
             }
-            
+
             .container, .QaBox {
                 background: #1e293b;
             }
@@ -152,10 +152,10 @@ class HtmlFormatter:
             references_content = '<div class="history-section"><h2 class="history-title">参考文献</h2>'
             for idx, paper in enumerate(ranked_papers, 1):
                 authors = ', '.join(paper.authors)
-                
+
                 # 构建引用信息
                 citations_info = f"被引用次数：{paper.citations}" if paper.citations is not None else "引用信息未知"
-                
+
                 # 构建下载链接
                 download_links = []
                 if paper.doi:
@@ -175,14 +175,14 @@ class HtmlFormatter:
                     # 只有当URL不是arXiv链接时才添加
                     download_links.append(f'<a href="{paper.url}">原文链接</a>')
                 download_section = ' | '.join(download_links) if download_links else "无直接下载链接"
-                
+
                 # 构建来源信息
                 source_info = []
                 if paper.venue_type:
                     source_info.append(f"类型：{paper.venue_type}")
                 if paper.venue_name:
                     source_info.append(f"来源：{paper.venue_name}")
-                    
+
                 # 添加期刊指标信息
                 if hasattr(paper, 'if_factor') and paper.if_factor:
                     source_info.append(f"<span class='journal-metric'>IF: {paper.if_factor}</span>")
@@ -190,7 +190,7 @@ class HtmlFormatter:
                     source_info.append(f"<span class='journal-metric'>JCR分区: {paper.jcr_division}</span>")
                 if hasattr(paper, 'cas_division') and paper.cas_division:
                     source_info.append(f"<span class='journal-metric'>中科院分区: {paper.cas_division}</span>")
-                    
+
                 if hasattr(paper, 'venue_info') and paper.venue_info:
                     if paper.venue_info.get('journal_ref'):
                         source_info.append(f"期刊参考：{paper.venue_info['journal_ref']}")
@@ -223,7 +223,7 @@ class HtmlFormatter:
                         # 非arXiv的DOI使用标准格式
                         standard_citation += f". DOI: {paper.doi}"
                 standard_citation += "."
-                
+
                 references_content += f'''
                 <div class="historyBox">
                     <div class="entry">
@@ -287,13 +287,13 @@ class HtmlFormatter:
                 border-radius: 4px;
                 border: 1px solid var(--border-color);
             }
-            
+
             .citation-title {
                 font-weight: bold;
                 margin-bottom: 0.5em;
                 color: var(--secondary-color);
             }
-            
+
             .citation-text {
                 font-family: 'Times New Roman', Times, serif;
                 line-height: 1.6;
@@ -303,7 +303,7 @@ class HtmlFormatter:
                 border-radius: 4px;
                 border: 1px solid var(--border-color);
             }
-            
+
             .copy-btn {
                 background: var(--primary-color);
                 color: white;
@@ -314,11 +314,11 @@ class HtmlFormatter:
                 font-size: 0.9em;
                 transition: background-color 0.2s;
             }
-            
+
             .copy-btn:hover {
                 background: #1e40af;
             }
-            
+
             @media (prefers-color-scheme: dark) {
                 .standard-citation {
                     background: #1e293b;
@@ -327,7 +327,7 @@ class HtmlFormatter:
                     background: #0f172a;
                 }
             }
-            
+
             /* 添加期刊指标样式 */
             .journal-metric {
                 display: inline-block;
@@ -338,7 +338,7 @@ class HtmlFormatter:
                 font-weight: 500;
                 color: var(--primary-color);
             }
-            
+
             @media (prefers-color-scheme: dark) {
                 .journal-metric {
                     background: #1e293b;
@@ -346,7 +346,7 @@ class HtmlFormatter:
                 }
             }
         """
-        
+
         # 修改 js_code 部分，添加 markdown 解析功能
         js_code = """
         <script>

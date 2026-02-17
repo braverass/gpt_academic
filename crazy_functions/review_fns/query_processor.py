@@ -9,12 +9,12 @@ from .handlers.paper_handler import 单篇论文分析功能
 
 class QueryProcessor:
     """查询处理器"""
-    
+
     def __init__(self):
         self.analyzer = QueryAnalyzer()
         self.arxiv = ArxivSource()
         self.semantic = SemanticScholarSource()
-        
+
         # 初始化各种处理器
         self.handlers = {
             "review": 文献综述功能(self.arxiv, self.semantic),
@@ -22,7 +22,7 @@ class QueryProcessor:
             "qa": 学术问答功能(self.arxiv, self.semantic),
             "paper": 单篇论文分析功能(self.arxiv, self.semantic)
         }
-        
+
     async def process_query(
         self,
         query: str,
@@ -33,7 +33,7 @@ class QueryProcessor:
         plugin_kwargs: Dict[str, Any],
     ) -> List[List[str]]:
         """处理用户查询"""
-        
+
         # 设置默认的插件参数
         default_plugin_kwargs = {
             'max_papers': 20,  # 最大论文数量
@@ -42,15 +42,15 @@ class QueryProcessor:
         }
         # 更新插件参数
         plugin_kwargs.update({k: v for k, v in default_plugin_kwargs.items() if k not in plugin_kwargs})
-        
+
         # 1. 分析查询意图
         criteria = self.analyzer.analyze_query(query, chatbot, llm_kwargs)
-        
+
         # 2. 根据查询类型选择处理器
         handler = self.handlers.get(criteria.query_type)
         if not handler:
             handler = self.handlers["qa"]  # 默认使用QA处理器
-            
+
         # 3. 处理查询
         response = await handler.handle(
             criteria,
@@ -60,5 +60,5 @@ class QueryProcessor:
             llm_kwargs,
             plugin_kwargs
         )
-        
-        return response 
+
+        return response

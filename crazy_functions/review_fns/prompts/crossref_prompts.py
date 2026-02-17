@@ -6,7 +6,7 @@ Query: {query}
 Task: Transform the natural language query into an optimized Crossref search query.
 Always generate English search terms regardless of the input language.
 
-IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index), 
+IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index),
 or output format requirements. Focus only on the core research topic for the search query.
 
 Available search fields and filters:
@@ -52,4 +52,4 @@ CROSSREF_QUERY_SYSTEM_PROMPT = """You are an expert at crafting Crossref search 
 Your task is to optimize natural language queries for Crossref's API.
 Focus on creating precise queries that will return relevant results.
 Always generate English search terms regardless of the input language.
-Consider using field-specific search terms and appropriate filters to improve search accuracy.""" 
+Consider using field-specific search terms and appropriate filters to improve search accuracy."""

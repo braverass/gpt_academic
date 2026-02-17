@@ -144,7 +144,7 @@ class GoogleChatInit:
     def __conversation_user(self, user_input, llm_kwargs, enable_multimodal_capacity):
         what_i_have_asked = {"role": "user", "parts": []}
         from .bridge_all import model_info
-            
+
         if enable_multimodal_capacity:
             input_, encode_img = input_encode_handler(user_input, llm_kwargs=llm_kwargs)
         else:
@@ -195,12 +195,12 @@ class GoogleChatInit:
             enable_multimodal_capacity = (len(image_base64_array) > 0) or any([contain_base64(h) for h in history])
         else:
             enable_multimodal_capacity = False
-        
+
         if not enable_multimodal_capacity:
             messages.extend(
                 self.__conversation_history(history, llm_kwargs, enable_multimodal_capacity)
             )  # 处理 history
-            
+
         messages.append(self.__conversation_user(inputs, llm_kwargs, enable_multimodal_capacity))  # 处理用户对话
         stop_sequences = str(llm_kwargs.get("stop", "")).split(" ")
         # 过滤空字符串并确保至少有一个停止序列

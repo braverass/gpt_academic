@@ -19,7 +19,7 @@ def convert_markdown_to_txt(markdown_text):
 
     # 4. Handle links - keep only the text
     markdown_text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'\1 (\2)', markdown_text)
-    
+
     # 5. Handle HTML links - convert to user-friendly format
     markdown_text = re.sub(r'<a href=[\'"]([^\'"]+)[\'"](?:\s+target=[\'"][^\'"]+[\'"])?>([^<]+)</a>', r'\2 (\1)', markdown_text)
 
@@ -58,12 +58,12 @@ class TxtFormatter:
         """生成保留原始结构的文档"""
         # 添加头部信息
         self.content.extend(self._format_header())
-        
+
         # 处理内容，保留原始结构
         processed_content = convert_markdown_to_txt(content)
-        
+
         # 添加处理后的内容
         self.content.append(processed_content)
-        
+
         # 合并所有内容
         return "\n".join(self.content)

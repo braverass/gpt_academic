@@ -26,6 +26,3 @@ def Commandline_Assistant(txt, llm_kwargs, plugin_kwargs, chatbot, history, syst
         sys_prompt="你是一个Linux大师级用户。注意，当我要求你写bash命令时，尽可能地仅用一行命令解决我的要求。"
     )
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 # 界面更新
-
-
-

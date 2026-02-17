@@ -1,9 +1,14 @@
-from toolbox import CatchException, update_ui, get_conf, select_api_key, get_log_folder
+import requests
+import base64
+import json
+import time
+import os
+from request_llms.bridge_chatgpt import make_multimodal_input
+from toolbox import CatchException, have_any_recent_upload_image_files, update_ui, get_conf, select_api_key, get_log_folder, update_ui_latest_msg
 from crazy_functions.multi_stage.multi_stage_utils import GptAcademicState
-
+from loguru import logger
 
 def gen_image(llm_kwargs, prompt, resolution="1024x1024", model="dall-e-2", quality=None, style=None):
-    import requests, json, time, os
     from request_llms.bridge_all import model_info
 
     proxies = get_conf('proxies')
@@ -47,7 +52,6 @@ def gen_image(llm_kwargs, prompt, resolution="1024x1024", model="dall-e-2", qual
 
 
 def edit_image(llm_kwargs, prompt, image_path, resolution="1024x1024", model="dall-e-2"):
-    import requests, json, time, os
     from request_llms.bridge_all import model_info
 
     proxies = get_conf('proxies')
@@ -106,7 +110,7 @@ def 图片生成_DALLE2(prompt, llm_kwargs, plugin_kwargs, chatbot, history, sys
     history = []    # 清空历史,以免输入溢出
     if prompt.strip() == "":
         chatbot.append((prompt, "[Local Message] 图像生成提示为空白，请在“输入区”输入图像生成提示。"))
-        yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 界面更新
+        yield from update_ui(chatbot=chatbot, history=history)
         return
     chatbot.append(("您正在调用“图像生成”插件。", "[Local Message] 生成图像, 使用前请切换模型到GPT系列。如果中文Prompt效果不理想, 请尝试英文Prompt。正在处理中 ....."))
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 由于请求gpt需要一段时间,我们先及时地做一次界面更新
@@ -119,7 +123,7 @@ def 图片生成_DALLE2(prompt, llm_kwargs, plugin_kwargs, chatbot, history, sys
         f'本地文件地址: <br/>`{image_path}`<br/>'+
         f'本地文件预览: <br/><div align="center"><img src="file={image_path}"></div>'
     ])
-    yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 界面更新
+    yield from update_ui(chatbot=chatbot, history=history)
 
 
 @CatchException
@@ -127,7 +131,7 @@ def 图片生成_DALLE3(prompt, llm_kwargs, plugin_kwargs, chatbot, history, sys
     history = []    # 清空历史,以免输入溢出
     if prompt.strip() == "":
         chatbot.append((prompt, "[Local Message] 图像生成提示为空白，请在“输入区”输入图像生成提示。"))
-        yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 界面更新
+        yield from update_ui(chatbot=chatbot, history=history)
         return
     chatbot.append(("您正在调用“图像生成”插件。", "[Local Message] 生成图像, 使用前请切换模型到GPT系列。如果中文Prompt效果不理想, 请尝试英文Prompt。正在处理中 ....."))
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 由于请求gpt需要一段时间,我们先及时地做一次界面更新
@@ -150,7 +154,200 @@ def 图片生成_DALLE3(prompt, llm_kwargs, plugin_kwargs, chatbot, history, sys
         f'本地文件地址: <br/>`{image_path}`<br/>'+
         f'本地文件预览: <br/><div align="center"><img src="file={image_path}"></div>'
     ])
-    yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 界面更新
+    yield from update_ui(chatbot=chatbot, history=history)
+
+
+
+def gen_image_banana(chatbot, history, text_prompt, image_base64_list=None, resolution="1K", aspectRatio="1:1", model="nano-banana"):
+    """
+    Generate image using Nano-banana API (optimized DALL-E format API)
+
+    Args:
+        text_prompt: Text description for image generation
+        image_base64_list: List of base64 encoded images or URLs (optional, for image-to-image)
+        resolution: Image size, one of: "1K", "2K", "4K" (default: "1K")
+        aspectRatio: Aspect ratio like "1:1", "16:9", "3:4", "4:3", "9:16", "2:3", "3:2", "4:5", "5:4", "21:9" (default: "1:1")
+        model: Model name, "nano-banana" or "nano-banana-hd" for 4K quality (default: "nano-banana")
+
+    Returns:
+        tuple: (image_url, local_file_path)
+    """
+
+
+    proxies = get_conf('proxies')
+
+    # Get API configuration
+    if not get_conf('REROUTE_ALL_TO_ONE_API'):
+        api_key = get_conf('GEMINI_API_KEY')
+        # Default to a generic endpoint if not using ONE_API
+        base_url = get_conf('GEMINI_BASE_URL') if get_conf('GEMINI_BASE_URL') else "https://api.example.com"
+        if base_url.endswith('/v1'):
+            base_url = base_url[:-3]
+        url = base_url + "/v1/images/generations"
+        download_image_proxies = proxies
+    else:
+        url = get_conf('ONE_API_URL')
+        api_key = get_conf('ONE_API_KEY')
+        if api_key == '$API_KEY':
+            api_key = get_conf('API_KEY')
+        download_image_proxies = proxies
+        proxies = None
+
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+
+    # Make API request
+
+    try:
+        payload = {
+            "model": "google/gemini-3-pro-image-preview",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": text_prompt
+                        },
+                    ]
+                }
+            ],
+            "modalities": ["image", "text"],
+            "image_config": {
+                "aspect_ratio": aspectRatio,
+                "image_size": resolution
+            }
+        }
+
+        for image_base64 in image_base64_list:
+            # {
+            #     "type": "image_url",
+            #     "image_url": {
+            #         "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+            #     }
+            # }
+            # img = f"data:image/jpeg;base64,{base64_image}"
+
+            payload["messages"][0]["content"].append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{image_base64}"
+                }
+            })
+
+
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+        image_url = None
+        generated_content = ""
+        if result.get("choices"):
+            message = result["choices"][0]["message"]
+            if message.get("images"):
+                generated_content = message.get('reasoning', "") + message.get('content', "")
+                for image in message["images"]:
+                    image_url = image["image_url"]["url"]
+                    print(f"Generated image: {image_url[:50]}...")
+
+
+        if response.status_code != 200:
+            yield from update_ui_latest_msg(lastmsg=f"Generate Failed\n\n{generated_content}\n\nStatus Code: {response.status_code}", chatbot=chatbot, history=history, delay=0)
+            return
+
+        if image_url is None:
+            raise RuntimeError("No image URL found in the response.")
+
+        logger.info(f'Generated image.')
+        yield from update_ui_latest_msg(lastmsg=f"Downloading image", chatbot=chatbot, history=history, delay=0)
+
+        if ';base64,' in image_url:
+            base64_string = image_url.split('base64,')[-1]
+            image_data = base64.b64decode(base64_string)
+            file_path = f'{get_log_folder()}/image_gen/'
+            os.makedirs(file_path, exist_ok=True)
+            file_name = 'Image' + time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()) + '.png'
+            fp = file_path+file_name
+            with open(fp, 'wb+') as f: f.write(image_data)
+        else:
+            raise ValueError("Invalid image URL format.")
+
+        return image_url, fp
+
+    except Exception as e:
+        yield from update_ui_latest_msg(lastmsg=f"Generate failed, please try again later.", chatbot=chatbot, history=history, delay=0)
+        raise RuntimeError(f"Failed to generate image, please try again later: {str(e)}")
+
+
+
+
+
+
+
+
+
+@CatchException
+def 图片生成_NanoBanana(prompt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, user_request):
+    history = []    # 清空历史,以免输入溢出
+
+    if prompt.strip() == "":
+        chatbot.append((prompt, "[Local Message] 图像生成提示为空白"))
+        yield from update_ui(chatbot=chatbot, history=history)
+        return
+    chatbot.append((
+        prompt,
+        "正在调用 NanoBanana 图像生成, 正在处理中 ....."
+    ))
+
+    yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 由于请求gpt需要一段时间,我们先及时地做一次界面更新
+    if ("advanced_arg" in plugin_kwargs) and (plugin_kwargs["advanced_arg"] == ""): plugin_kwargs.pop("advanced_arg")
+
+    model = "nano-banana"
+    resolution = plugin_kwargs["resolution"]
+    aspectRatio = plugin_kwargs["aspect ratio"]
+
+    # Validate aspect ratio
+    valid_ratios = ["1:1", "16:9", "9:16", "4:3", "3:4", "2:3", "3:2", "4:5", "5:4", "21:9"]
+    if aspectRatio not in valid_ratios:
+        aspectRatio = "1:1"
+
+    try:
+        # get image from recent upload
+        has_recent_image_upload, image_paths = have_any_recent_upload_image_files(chatbot, pop=True)
+        if has_recent_image_upload:
+            _, image_base64_array = make_multimodal_input(prompt, image_paths)
+        else:
+            _, image_base64_array = prompt, []
+
+        # get image from session storage
+        if 'session_file_storage' in chatbot._cookies:
+            try:
+                image_base64_array += [base64.b64encode(open(chatbot._cookies['session_file_storage'], 'rb').read()).decode('utf-8')]
+            except:
+                logger.exception("Failed to read session_file_storage and parse to image base64.")
+
+        # only keep last image if any
+        if len(image_base64_array) > 1:
+            image_base64_array = [image_base64_array[-1]]
+
+        # Generate image
+        _, image_path = yield from gen_image_banana(chatbot, history, prompt, image_base64_list=image_base64_array, resolution=resolution, aspectRatio=aspectRatio, model=model)
+
+        # Build response message
+        response_msg = f'模型: {model}<br/>分辨率: {resolution}<br/>比例: {aspectRatio}<br/><br/>'
+        response_msg += f'本地文件地址: <br/>`{image_path}`<br/>'
+        response_msg += f'本地文件预览: <br/><div align="center"><img src="file={image_path}"></div>'
+
+        # register image
+        chatbot._cookies['session_file_storage'] = image_path
+
+        yield from update_ui_latest_msg(lastmsg=response_msg, chatbot=chatbot, history=history, delay=0)
+
+    except Exception as e:
+        chatbot.append([prompt, f'生成图像失败: {str(e)}'])
+
+    yield from update_ui(chatbot=chatbot, history=history)
+
 
 
 class ImageEditState(GptAcademicState):
@@ -232,7 +429,7 @@ def 图片修改_DALLE2(prompt, llm_kwargs, plugin_kwargs, chatbot, history, sys
         f'本地文件地址: <br/>`{image_path}`<br/>'+
         f'本地文件预览: <br/><div align="center"><img src="file={image_path}"></div>'
     ])
-    yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 界面更新
+    yield from update_ui(chatbot=chatbot, history=history)
     state.unlock_plugin(chatbot)
 
 def make_transparent(input_image_path, output_image_path):

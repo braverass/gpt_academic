@@ -60,7 +60,7 @@ Query: {query}
 Task: Transform the natural language query into an optimized search query for maximum relevance.
 Always generate English search terms regardless of the input language.
 
-IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index), 
+IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index),
 or output format requirements. Focus only on the core research topic for the search query.
 
 Query optimization guidelines:
@@ -223,8 +223,8 @@ Query: {query}
 
 Task: Transform the natural language query into optimized search criteria for Semantic Scholar.
 
-IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index), 
-or output format requirements when generating the search terms. These requirements 
+IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index),
+or output format requirements when generating the search terms. These requirements
 should be considered only for post-search filtering, not as part of the core query.
 
 Available search options:

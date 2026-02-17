@@ -45,7 +45,7 @@ def search_optimizer(
             sys_prompt = SearchOptimizerPrompt.format(query=query, history=his, num=3)
         elif categories == "science":
             sys_prompt = SearchAcademicOptimizerPrompt.format(query=query, history=his, num=3)
-    
+
     mutable = ["", time.time(), ""]
     llm_kwargs["temperature"] = 0.8
     try:

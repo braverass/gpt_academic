@@ -177,4 +177,3 @@ def 下载arxiv论文并翻译摘要(txt, llm_kwargs, plugin_kwargs, chatbot, hi
 
     chatbot.append(("完成了吗？", res + "\n\nPDF文件也已经下载"))
     yield from update_ui(chatbot=chatbot, history=history, msg=msg) # 刷新界面
-

@@ -40,4 +40,3 @@ def search_videos(keywords):
     save_file_dir = get_log_folder("default_user", plugin_name='media_downloader')
     for output_manifest in stream_daas(docker_service_api_com_model, server_url, save_file_dir):
         return output_manifest['server_message']
-

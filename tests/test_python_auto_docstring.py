@@ -325,18 +325,3 @@ with open('temp.py', 'w+', encoding='utf8') as f:
 
 
 print(cwm)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -533,5 +533,3 @@ def generate_payload(inputs:str, llm_kwargs:dict, history:list, system_prompt:st
     }
 
     return headers,payload
-
-

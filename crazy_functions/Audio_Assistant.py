@@ -191,4 +191,3 @@ def Audio_Assistant(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_pro
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面
     ia = InterviewAssistant()
     yield from ia.begin(llm_kwargs, plugin_kwargs, chatbot, history, system_prompt)
-

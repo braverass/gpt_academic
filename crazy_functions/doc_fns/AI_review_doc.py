@@ -282,11 +282,11 @@ class WordFormatter(DocumentFormatter):
 
     def save_as_pdf(self, word_path, pdf_path=None):
         """将生成的Word文档转换为PDF
-        
+
         参数:
             word_path: Word文档的路径
             pdf_path: 可选，PDF文件的输出路径。如果未指定，将使用与Word文档相同的名称和位置
-            
+
         返回:
             生成的PDF文件路径，如果转换失败则返回None
         """
@@ -388,7 +388,7 @@ class HtmlFormatter(DocumentFormatter):
             --warning-color: #f59e0b;
             --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --hover-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            
+
             /* Typography */
             --heading-font: "Plus Jakarta Sans", system-ui, sans-serif;
             --body-font: "Inter", system-ui, sans-serif;
@@ -684,7 +684,7 @@ class HtmlFormatter(DocumentFormatter):
                 padding: 1rem;
                 font-size: 15px;
             }
-            
+
             .container {
                 padding: 1.5rem;
             }

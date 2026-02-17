@@ -340,5 +340,3 @@ Focus on:
 6. Technical limitations and potential improvements
 
 Format your response in markdown, focusing purely on technical aspects."""
-
-

@@ -122,11 +122,11 @@ Tom Holland |
  |
 | 男演员 |
 | 昵称 | 荷兰弟[\[1\]](https://zh.wikipedia.org/zh-hans/%E6%B1%A4%E5%A7%86%C2%B7%E8%B5%AB%E5%85%B0%E5%BE%B7#cite_note-1) |
-| 出生 | 汤玛斯·史丹利·霍兰德  
+| 出生 | 汤玛斯·史丹利·霍兰德
 （Thomas Stanley Holland）[\[2\]](https://zh.wikipedia.org/zh-hans/%E6%B1%A4%E5%A7%86%C2%B7%E8%B5%AB%E5%85%B0%E5%BE%B7#cite_note-2)
 
-  
-1996年6月1日（28岁）  
+
+1996年6月1日（28岁）
 
 英国[英格兰](https://zh.wikipedia.org/wiki/%E8%8B%B1%E6%A0%BC%E8%98%AD "英格兰")[泰晤士河畔金斯顿](https://zh.wikipedia.org/wiki/%E6%B3%B0%E6%99%A4......</div>
 </details>
@@ -187,7 +187,7 @@ URL Source: https://www.sohu.com/a/683718058_544020
 
 Markdown Content:
 荷兰弟居然要休息一年，因演戏演到精神分裂…\_Holland\_Tom\_工作
-=============== 
+===============
 
 *   [](http://www.sohu.com/?spm=smpc.content-abroad.nav.1.1739375954055TcEvWsY)
 *   [新闻](http://news.sohu.com/?spm=smpc.content-abroad.nav.2.1739375954055TcEvWsY)

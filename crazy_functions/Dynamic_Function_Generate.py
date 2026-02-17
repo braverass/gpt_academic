@@ -249,4 +249,3 @@ def Dynamic_Function_Generate(txt, llm_kwargs, plugin_kwargs, chatbot, history, 
         else:
             chatbot.append(["执行成功了，结果是一个字符串", "结果：" + res])
             yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 # 界面更新
-

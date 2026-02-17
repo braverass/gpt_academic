@@ -225,5 +225,3 @@ class ChatGLMTokenizer:
         text = text.replace("<|tab|>", "\t")
         text = re.sub(r"<\|blank_(\d\d?)\|>", replace_blank_with_spaces, text)
         return text
-
-

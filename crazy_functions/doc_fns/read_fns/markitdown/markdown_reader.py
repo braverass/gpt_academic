@@ -65,7 +65,7 @@ class MarkdownConverter:
         """
         self.config = config or MarkdownConverterConfig()
         self._setup_logging()
-        
+
         # 检查是否安装了 markitdown
         self._check_markitdown_installation()
 
@@ -81,7 +81,7 @@ class MarkdownConverter:
         fh = logging.FileHandler('markdown_converter.log')
         fh.setLevel(logging.ERROR)
         self.logger.addHandler(fh)
-    
+
     def _check_markitdown_installation(self) -> None:
         """检查是否安装了 markitdown"""
         try:
@@ -98,7 +98,7 @@ class MarkdownConverter:
                 self.logger.error("无法安装 markitdown 库，请手动安装")
                 self.markitdown_available = False
                 return
-        
+
         self.markitdown_available = True
 
     def _validate_file(self, file_path: Union[str, Path], max_size_mb: int = 100) -> Path:
@@ -218,20 +218,20 @@ class MarkdownConverter:
                 )
             else:
                 md = MarkItDown(enable_plugins=self.config.enable_plugins)
-            
+
             # 执行转换
             result = md.convert(str(path))
             markdown_content = result.text_content
-            
+
             # 清理文本
             markdown_content = self._cleanup_text(markdown_content)
-            
+
             # 如果需要保存到文件
             if output_path:
                 with open(output_path, 'w', encoding='utf-8') as f:
                     f.write(markdown_content)
                 self.logger.info(f"转换成功，输出到: {output_path}")
-            
+
             return markdown_content
 
         except Exception as e:
@@ -261,10 +261,10 @@ class MarkdownConverter:
         """
         self.convert_to_markdown(file_path, output_path)
         return Path(output_path)
-    
+
     def batch_convert(
-            self, 
-            file_paths: List[Union[str, Path]], 
+            self,
+            file_paths: List[Union[str, Path]],
             output_dir: Union[str, Path]
     ) -> List[Path]:
         """批量转换多个 PDF 文件为 Markdown
@@ -281,19 +281,19 @@ class MarkdownConverter:
         """
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         output_paths = []
         for file_path in file_paths:
             path = Path(file_path)
             output_path = output_dir / f"{path.stem}.md"
-            
+
             try:
                 self.convert_to_markdown(file_path, output_path)
                 output_paths.append(output_path)
                 self.logger.info(f"成功转换: {path} -> {output_path}")
             except Exception as e:
                 self.logger.error(f"转换失败 {path}: {e}")
-        
+
         return output_paths
 
 
@@ -326,12 +326,12 @@ def main():
             markdown_content = converter.convert_to_markdown(sample_file)
             print("转换后的 Markdown 内容:")
             print(markdown_content[:500] + "...")  # 只打印前500个字符
-            
+
             # 转换并保存到文件
             output_file = f"./output_{Path(sample_file).stem}.md"
             output_path = converter.convert_to_markdown_and_save(sample_file, output_file)
             print(f"\n已保存到: {output_path}")
-            
+
             # 使用LLM增强的示例 (需要添加相应的导入和配置)
             # try:
             #     from openai import OpenAI
@@ -356,4 +356,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

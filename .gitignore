@@ -155,7 +155,6 @@ request_llms/moss
 media
 flagged
 request_llms/ChatGLM-6b-onnx-u8s8
-.pre-commit-config.yaml
 test.*
 temp.*
 objdump*
@@ -165,3 +164,4 @@ experimental_mods
 search_results
 gg.docx
 unstructured_reader.py
+wandb

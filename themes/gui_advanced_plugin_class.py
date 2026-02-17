@@ -54,4 +54,3 @@ def define_gui_advanced_plugin_class(plugins):
                     yield from ArgsGeneralWrapper(plugin_exe)(request, *arguments.values())
 
     return invisible_callback_btn_for_plugin_exe, route_switchy_bt_with_arg, usr_confirmed_arg
-

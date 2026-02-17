@@ -3,7 +3,7 @@ from crazy_functions.json_fns.pydantic_io import GptJsonIO, JsonStringError
 def structure_output(txt, prompt, err_msg, run_gpt_fn, pydantic_cls):
     gpt_json_io = GptJsonIO(pydantic_cls)
     analyze_res = run_gpt_fn(
-        txt, 
+        txt,
         sys_prompt=prompt + gpt_json_io.format_instructions
     )
     try:

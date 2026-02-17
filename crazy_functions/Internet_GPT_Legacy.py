@@ -103,4 +103,3 @@ def 连接网络回答问题(txt, llm_kwargs, plugin_kwargs, chatbot, history, s
     chatbot[-1] = (i_say, gpt_say)
     history.append(i_say);history.append(gpt_say)
     yield from update_ui(chatbot=chatbot, history=history) # 刷新界面 # 界面更新
-

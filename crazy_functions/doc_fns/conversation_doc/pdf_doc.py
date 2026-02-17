@@ -49,14 +49,14 @@ class PDFFormatter:
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.units import cm
         from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-        
+
         self._lib = {
             'A4': A4,
             'getSampleStyleSheet': getSampleStyleSheet,
             'ParagraphStyle': ParagraphStyle,
             'cm': cm
         }
-        
+
         self._platypus = {
             'SimpleDocTemplate': SimpleDocTemplate,
             'Paragraph': Paragraph,

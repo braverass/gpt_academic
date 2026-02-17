@@ -20,7 +20,7 @@ class QueryAnalyzer:
     # 响应索引常量
     BASIC_QUERY_INDEX = 0
     GITHUB_QUERY_INDEX = 1
-    
+
     def __init__(self):
         self.valid_types = {
             "repo": ["repository", "project", "library", "framework", "tool"],
@@ -33,7 +33,7 @@ class QueryAnalyzer:
         """分析查询意图"""
         from crazy_functions.crazy_utils import \
             request_gpt_model_multi_threads_with_very_awesome_ui_and_high_efficiency as request_gpt
-        
+
         # 1. 基本查询分析
         type_prompt = f"""请分析这个与GitHub相关的查询，并严格按照以下XML格式回答：
 
@@ -197,7 +197,7 @@ Please analyze the query and answer using only the XML tag:
                 "You are a GitHub search expert, specialized in converting natural language queries into optimized GitHub search queries in English.",
                 "你是一个GitHub搜索专家，擅长处理查询并保留中文关键词进行搜索。",
             ]
-            
+
             # 使用同步方式调用LLM
             responses = yield from request_gpt(
                 inputs_array=prompts,
@@ -248,7 +248,7 @@ Please analyze the query and answer using only the XML tag:
 
             # 提取语言
             language = self._extract_tag(extracted_responses[self.BASIC_QUERY_INDEX], "language")
-            
+
             # 提取最低星标数
             min_stars = 0
             min_stars_text = self._extract_tag(extracted_responses[self.BASIC_QUERY_INDEX], "min_stars")
@@ -257,10 +257,10 @@ Please analyze the query and answer using only the XML tag:
 
             # 解析GitHub搜索参数 - 英文
             english_github_query = self._extract_tag(extracted_responses[self.GITHUB_QUERY_INDEX], "query")
-            
+
             # 解析GitHub搜索参数 - 中文
             chinese_github_query = self._extract_tag(extracted_responses[2], "query")
-            
+
             # 构建GitHub参数
             github_params = {
                 "query": english_github_query,
@@ -270,14 +270,14 @@ Please analyze the query and answer using only the XML tag:
                 "per_page": 30,   # 默认每页30条
                 "page": 1         # 默认第1页
             }
-            
+
             # 检查是否为特定仓库查询
             repo_id = ""
             if "repo:" in english_github_query or "repository:" in english_github_query:
                 repo_match = re.search(r'(repo|repository):([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)', english_github_query)
                 if repo_match:
                     repo_id = repo_match.group(2)
-            
+
             print(f"Debug - 提取的信息:")
             print(f"查询类型: {query_type}")
             print(f"主题: {main_topic}")
@@ -353,4 +353,4 @@ Please analyze the query and answer using only the XML tag:
                     return content
 
         # 如果所有模式都失败，返回空字符串
-        return "" 
+        return ""

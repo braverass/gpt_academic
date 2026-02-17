@@ -9,37 +9,37 @@ from datetime import datetime
 def convert_markdown_to_word(markdown_text):
     # 0. 首先标准化所有换行符为\n
     markdown_text = markdown_text.replace('\r\n', '\n').replace('\r', '\n')
-    
+
     # 1. 处理标题 - 支持更多级别的标题，使用更精确的正则
     # 保留标题标记，以便后续处理时还能识别出标题级别
     markdown_text = re.sub(r'^(#{1,6})\s+(.+?)(?:\s+#+)?$', r'\1 \2', markdown_text, flags=re.MULTILINE)
-    
+
     # 2. 处理粗体、斜体和加粗斜体
     markdown_text = re.sub(r'\*\*\*(.+?)\*\*\*', r'\1', markdown_text)  # 加粗斜体
     markdown_text = re.sub(r'\*\*(.+?)\*\*', r'\1', markdown_text)      # 加粗
     markdown_text = re.sub(r'\*(.+?)\*', r'\1', markdown_text)          # 斜体
     markdown_text = re.sub(r'_(.+?)_', r'\1', markdown_text)            # 下划线斜体
     markdown_text = re.sub(r'__(.+?)__', r'\1', markdown_text)          # 下划线加粗
-    
+
     # 3. 处理代码块 - 不移除，而是简化格式
     # 多行代码块
     markdown_text = re.sub(r'```(?:\w+)?\n([\s\S]*?)```', r'[代码块]\n\1[/代码块]', markdown_text)
     # 单行代码
     markdown_text = re.sub(r'`([^`]+)`', r'[代码]\1[/代码]', markdown_text)
-    
+
     # 4. 处理列表 - 保留列表结构
     # 匹配无序列表
     markdown_text = re.sub(r'^(\s*)[-*+]\s+(.+?)$', r'\1• \2', markdown_text, flags=re.MULTILINE)
-    
+
     # 5. 处理Markdown链接
     markdown_text = re.sub(r'\[([^\]]+)\]\(([^)]+?)\s*(?:"[^"]*")?\)', r'\1 (\2)', markdown_text)
-    
+
     # 6. 处理HTML链接
     markdown_text = re.sub(r'<a href=[\'"]([^\'"]+)[\'"](?:\s+target=[\'"][^\'"]+[\'"])?>([^<]+)</a>', r'\2 (\1)', markdown_text)
-    
+
     # 7. 处理图片
     markdown_text = re.sub(r'!\[([^\]]*)\]\([^)]+\)', r'[图片：\1]', markdown_text)
-    
+
     return markdown_text
 
 
@@ -169,31 +169,31 @@ class WordFormatter:
 
         # 预处理内容，将Markdown格式转换为适合Word的格式
         processed_content = convert_markdown_to_word(content)
-        
+
         # 按行处理文本，保留结构
         lines = processed_content.split('\n')
         in_code_block = False
         current_paragraph = None
-        
+
         for line in lines:
             # 检查是否为标题
             header_match = re.match(r'^(#{1,6})\s+(.+)$', line)
-            
+
             if header_match:
                 # 根据#的数量确定标题级别
                 level = len(header_match.group(1))
                 title_text = header_match.group(2)
-                
+
                 if level == 1:
                     style = 'Heading1_Custom'
                 elif level == 2:
                     style = 'Heading2_Custom'
                 else:
                     style = 'Heading3_Custom'
-                
+
                 self.doc.add_paragraph(title_text, style=style)
                 current_paragraph = None
-            
+
             # 检查代码块标记
             elif '[代码块]' in line:
                 in_code_block = True
@@ -201,20 +201,20 @@ class WordFormatter:
                 code_line = line.replace('[代码块]', '').strip()
                 if code_line:
                     current_paragraph.add_run(code_line)
-            
+
             elif '[/代码块]' in line:
                 in_code_block = False
                 code_line = line.replace('[/代码块]', '').strip()
                 if code_line and current_paragraph:
                     current_paragraph.add_run(code_line)
                 current_paragraph = None
-            
+
             # 检查列表项
             elif line.strip().startswith('•'):
                 p = self.doc.add_paragraph(style='List_Custom')
                 p.add_run(line.strip())
                 current_paragraph = None
-            
+
             # 处理普通文本行
             elif line.strip():
                 if in_code_block:
@@ -227,10 +227,9 @@ class WordFormatter:
                         current_paragraph = self.doc.add_paragraph(line, style='Normal_Custom')
                     else:
                         current_paragraph.add_run('\n' + line)
-            
+
             # 处理空行，创建新段落
             elif not in_code_block:
                 current_paragraph = None
 
         return self.doc
-

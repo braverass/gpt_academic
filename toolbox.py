@@ -88,6 +88,8 @@ class ChatBotWithCookies(list):
     def get_user(self):
         return self._cookies.get("user_name", default_user_name)
 
+
+
 def ArgsGeneralWrapper(f):
     """
     装饰器函数ArgsGeneralWrapper，用于重组输入参数，改变输入参数的顺序与结构。
@@ -194,7 +196,7 @@ def update_ui_latest_msg(lastmsg:str, chatbot:ChatBotWithCookies, history:list, 
     刷新用户界面
     """
     if len(chatbot) == 0:
-        chatbot.append(["update_ui_last_msg", lastmsg])
+        chatbot.append([None, lastmsg])
     chatbot[-1] = list(chatbot[-1])
     chatbot[-1][-1] = lastmsg
     yield from update_ui(chatbot=chatbot, history=history, msg=msg)

@@ -28,9 +28,9 @@ class SourceCodeComment_Wrap(GptAcademicPluginTemplate):
         """
         执行插件
         """
-        if plugin_kwargs["use_chinese"] == "中文": 
+        if plugin_kwargs["use_chinese"] == "中文":
             plugin_kwargs["use_chinese"] = True
-        else: 
+        else:
             plugin_kwargs["use_chinese"] = False
 
         yield from 注释Python项目(txt, llm_kwargs, plugin_kwargs, chatbot, history, system_prompt, user_request)

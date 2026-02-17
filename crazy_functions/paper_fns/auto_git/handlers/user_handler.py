@@ -5,10 +5,10 @@ import asyncio
 
 class UserSearchHandler(BaseHandler):
     """用户搜索处理器"""
-    
+
     def __init__(self, github, llm_kwargs=None):
         super().__init__(github, llm_kwargs)
-    
+
     async def handle(
         self,
         criteria: SearchCriteria,
@@ -19,30 +19,30 @@ class UserSearchHandler(BaseHandler):
         plugin_kwargs: Dict[str, Any],
     ) -> str:
         """处理用户搜索请求，返回最终的prompt"""
-        
+
         search_params = self._get_search_params(plugin_kwargs)
-        
+
         # 搜索用户
         users = await self._search_bilingual_users(
             english_query=criteria.github_params["query"],
             chinese_query=criteria.github_params["chinese_query"],
             per_page=search_params['max_repos']
         )
-        
+
         if not users:
             return self._generate_apology_prompt(criteria)
-            
+
         # 获取用户详情和仓库
         enhanced_users = await self._get_user_details(users[:search_params['max_details']])
         self.ranked_repos = []  # 添加用户top仓库进行展示
-        
+
         for user in enhanced_users:
             if user.get('top_repos'):
                 self.ranked_repos.extend(user.get('top_repos'))
-        
+
         if not enhanced_users:
             return self._generate_apology_prompt(criteria)
-        
+
         # 构建最终的prompt
         current_time = self._get_current_time()
         final_prompt = f"""当前时间: {current_time}
@@ -85,23 +85,23 @@ GitHub用户搜索结果:
 
 使用markdown格式提供清晰的分节回复。
 """
-        
+
         return final_prompt
 
     async def _get_user_details(self, users: List[Dict]) -> List[Dict]:
         """获取用户详情和仓库"""
         enhanced_users = []
-        
+
         for user in users:
             try:
                 username = user.get('login')
-                
+
                 if username:
                     # 获取用户详情
                     user_details = await self.github.get_user(username)
                     if user_details:
                         user.update(user_details)
-                    
+
                     # 获取用户仓库
                     repos = await self.github.get_user_repos(
                         username,
@@ -110,18 +110,18 @@ GitHub用户搜索结果:
                     )
                     if repos:
                         user['top_repos'] = repos
-                
+
                 enhanced_users.append(user)
             except Exception as e:
                 print(f"获取用户 {user.get('login')} 详情时出错: {str(e)}")
                 enhanced_users.append(user)  # 添加原始信息
-                
+
         return enhanced_users
 
     def _format_users(self, users: List[Dict]) -> str:
         """格式化用户列表"""
         formatted = []
-        
+
         for i, user in enumerate(users, 1):
             # 构建用户信息
             username = user.get('login', 'N/A')
@@ -133,7 +133,7 @@ GitHub用户搜索结果:
             company = user.get('company', '未指定')
             location = user.get('location', '未指定')
             blog = user.get('blog', '')
-            
+
             user_info = (
                 f"### {i}. {name} (@{username})\n\n"
                 f"- **简介**: {bio}\n"
@@ -142,7 +142,7 @@ GitHub用户搜索结果:
                 f"- **个人网站**: {blog}\n"
                 f"- **GitHub**: <a href='{profile_url}' target='_blank'>{username}</a>\n\n"
             )
-            
+
             # 添加用户的热门仓库
             top_repos = user.get('top_repos', [])
             if top_repos:
@@ -153,12 +153,12 @@ GitHub用户搜索结果:
                     repo_desc = repo.get('description', '无描述')
                     repo_stars = repo.get('stargazers_count', 0)
                     repo_language = repo.get('language', '未指定')
-                    
+
                     user_info += (
                         f"- <a href='{repo_url}' target='_blank'>{repo_name}</a> - ⭐ {repo_stars}, {repo_language}\n"
                         f"  {repo_desc}\n\n"
                     )
-            
+
             formatted.append(user_info)
-            
-        return "\n".join(formatted) 
+
+        return "\n".join(formatted)

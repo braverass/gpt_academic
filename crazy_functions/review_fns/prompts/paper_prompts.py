@@ -6,7 +6,7 @@ Query: {query}
 Task: Extract paper identification information from the query.
 Always generate English search terms regardless of the input language.
 
-IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index), 
+IMPORTANT: Ignore any requirements about journal ranking (CAS, JCR, IF index),
 or output format requirements. Focus only on identifying paper details.
 
 Possible paper identifiers:
@@ -44,4 +44,4 @@ Please analyze the query and respond ONLY with XML tags containing paper informa
 
 PAPER_IDENTIFY_SYSTEM_PROMPT = """You are an expert at identifying academic paper references.
 Your task is to extract paper identification information from queries.
-Look for arXiv IDs, DOIs, and paper titles.""" 
+Look for arXiv IDs, DOIs, and paper titles."""
